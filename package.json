@@ -1,0 +1,50 @@
+{
+  "name": "@rak200/coding-standard-ts",
+  "version": "0.1.0",
+  "description": "Layer 2 of the rak200 baseline for TypeScript: the enforcing configuration and the prose that documents it",
+  "license": "MIT",
+  "author": "rak200 <rak.ricardo@windowslive.com>",
+  "homepage": "https://github.com/rak200/coding-standard-ts",
+  "repository": {
+    "type": "git",
+    "url": "git+https://github.com/rak200/coding-standard-ts.git"
+  },
+  "type": "module",
+  "engines": {
+    "node": ">=22.13.0"
+  },
+  "exports": {
+    "./eslint": "./eslint.config.js",
+    "./tsconfig": "./tsconfig.base.json",
+    "./prettier": "./.prettierrc.json",
+    "./stryker": "./stryker.config.json",
+    "./vitest": "./vitest.base.js"
+  },
+  "bin": {
+    "coverage-floor": "./bin/coverage-floor.js"
+  },
+  "files": [
+    "bin",
+    "eslint.config.js",
+    "tsconfig.base.json",
+    ".prettierrc.json",
+    "stryker.config.json",
+    "vitest.base.js",
+    "CONVENTIONS.md"
+  ],
+  "dependencies": {
+    "@eslint/js": "^10.0.1",
+    "@stryker-mutator/core": "^9.6.1",
+    "@stryker-mutator/vitest-runner": "^9.6.1",
+    "@vitest/browser": "^4.1.10",
+    "@vitest/coverage-v8": "^4.1.10",
+    "eslint": "^10.8.0",
+    "eslint-config-prettier": "^10.1.8",
+    "playwright": "^1.62.1",
+    "prettier": "^3.9.6",
+    "publint": "^0.3.22",
+    "typescript": "^6.0.3",
+    "typescript-eslint": "^8.65.0",
+    "vitest": "^4.1.10"
+  }
+}
