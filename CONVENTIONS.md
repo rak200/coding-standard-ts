@@ -37,7 +37,7 @@ eight in `package.json`; CI asserts their presence.
 
 | Verb | Binding |
 | --- | --- |
-| `validate` | `publint --strict` |
+| `validate` | `npm run build && publint --strict` |
 | `lint` | `prettier --check .` |
 | `fix` | `prettier --write . && eslint --fix .` |
 | `analyse` | `tsc --noEmit && eslint .` |
@@ -51,6 +51,12 @@ of that name and skips any script that shadows it; npm has no such collision, be
 `npm run <verb>` always runs the script. The carve-out on the PHP side is a fact about Composer,
 not a rule of the vocabulary — and the two languages diverging on one line, for a stated reason,
 is the vocabulary working rather than failing.
+
+**`validate` builds first, and that is not scope creep.** `publint` checks that what the manifest
+says it publishes actually exists — `main`, `types`, every `exports` entry. In a language with a
+build step those files do not exist until something builds them, so a `validate` that skips the
+build validates a claim it cannot see. Layer 1's vocabulary has no `build` verb because PHP has no
+build; TypeScript folds it into the verb that needs it rather than opening the closed set.
 
 **`analyse` is two tools because static analysis is two questions.** `tsc --noEmit` answers *does
 it typecheck*; `eslint` answers *is it well-formed under rules that read those types*. PHPStan
