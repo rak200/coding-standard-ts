@@ -82,7 +82,10 @@ fixed — a suppression that outlives its cause is worse than the error it hid.
 
 ## Code style
 
-**Prettier**, and no arguments: 100 columns, single quotes, trailing commas everywhere, LF. Style
+**Prettier**, and no arguments: 100 columns, single quotes, trailing commas everywhere, LF.
+A repository gets them by re-exporting `@rak200/coding-standard-ts/prettier` from its own
+`prettier.config.js` — Prettier's JSON config has no `extends`, so a `.prettierrc.json` in a
+consumer replaces this standard instead of extending it, silently and while `lint` stays green. Style
 is not a place to spend judgement, and every rule that could disagree with the formatter is turned
 off in the ESLint config rather than fought.
 
