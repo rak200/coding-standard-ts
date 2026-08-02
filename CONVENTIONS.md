@@ -19,7 +19,7 @@ Import both from a project's `CLAUDE.md`:
 - **TypeScript 6.0**, and the ceiling is not a preference. `typescript-eslint` accepts
   `>=4.8.4 <6.1.0`, so TypeScript 7 — released and stable — **cannot be used** without giving up
   type-aware linting, which is the entire reason ESLint is in this stack. The floor moves when the
-  linter moves, and raising it is a major (Layer 1, *Versioning*).
+  linter moves, and raising it is a major (Layer 1, _Versioning_).
 - **ESM only** — `"type": "module"`, `verbatimModuleSyntax`, `NodeNext` resolution. No dual
   builds: a package that ships both formats ships two behaviours and debugs three.
 - **One dev dependency**: this package. It brings the compiler, the linter, the formatter, the
@@ -35,16 +35,16 @@ Import both from a project's `CLAUDE.md`:
 Layer 1 fixes the vocabulary; here is what each word does in TypeScript. A repository declares all
 eight in `package.json`; CI asserts their presence.
 
-| Verb | Binding |
-| --- | --- |
-| `validate` | `npm run build && publint --strict` |
-| `lint` | `prettier --check .` |
-| `fix` | `prettier --write . && eslint --fix .` |
-| `analyse` | `tsc --noEmit && eslint .` |
-| `test` | `vitest run` |
+| Verb       | Binding                                                                           |
+| ---------- | --------------------------------------------------------------------------------- |
+| `validate` | `npm run build && publint --strict`                                               |
+| `lint`     | `prettier --check .`                                                              |
+| `fix`      | `prettier --write . && eslint --fix .`                                            |
+| `analyse`  | `tsc --noEmit && eslint .`                                                        |
+| `test`     | `vitest run`                                                                      |
 | `coverage` | `coverage-floor` — this package's binary, clover report against `.coverage-floor` |
-| `scan` | `semgrep scan --config=p/typescript --severity=ERROR --sarif -o semgrep.sarif` |
-| `mutation` | `stryker run` |
+| `scan`     | `semgrep scan --config=p/typescript --severity=ERROR --sarif -o semgrep.sarif`    |
+| `mutation` | `stryker run`                                                                     |
 
 **`validate` is declared here and must not be declared in PHP.** Composer ships a native command
 of that name and skips any script that shadows it; npm has no such collision, because
@@ -58,14 +58,14 @@ build step those files do not exist until something builds them, so a `validate`
 build validates a claim it cannot see. Layer 1's vocabulary has no `build` verb because PHP has no
 build; TypeScript folds it into the verb that needs it rather than opening the closed set.
 
-**`analyse` is two tools because static analysis is two questions.** `tsc --noEmit` answers *does
-it typecheck*; `eslint` answers *is it well-formed under rules that read those types*. PHPStan
+**`analyse` is two tools because static analysis is two questions.** `tsc --noEmit` answers _does
+it typecheck_; `eslint` answers _is it well-formed under rules that read those types_. PHPStan
 answers both at once, which is a property of PHPStan, not of the step.
 
 ## Static analysis
 
 **`strictTypeChecked` + `stylisticTypeChecked`** — the strictest consolidated pair
-`typescript-eslint` publishes — over `src/` *and* the tests. This is the TypeScript answer to
+`typescript-eslint` publishes — over `src/` _and_ the tests. This is the TypeScript answer to
 PHPStan at `level: max`, and it is the reason the linter is ESLint: matching that bar needs rules
 that read the type checker, which Biome and oxlint do not have. `eslint-config-prettier` comes
 last and turns off everything that would argue with the formatter.
@@ -102,9 +102,19 @@ Layer 1 sets the policy — mirrored trees, one file per unit, contract assertio
   disagree, and exactly what a UI library exists to get right.
 - **Mutation: `thresholds.break: 100`.** The asymmetry with the PHP side is real and stated
   rather than smoothed: Infection has `minCoveredMsi`, a floor over covered code only, and Stryker
-  has **no covered-only break threshold**. So TypeScript enforces the stricter *overall* MSI,
+  has **no covered-only break threshold**. So TypeScript enforces the stricter _overall_ MSI,
   which a repository built to this standard from day one can hold. **The threshold is never
   lowered to accommodate a survivor.**
+- **`coverageAnalysis` is `all`, never `perTest`.** Per-test coverage needs instrumentation Vitest
+  does not provide in browser mode, and Stryker's failure mode is not an error: every mutant
+  reports zero covering tests and times out, so they count as _killed_ and the score comes out
+  high and meaningless. `all` still skips mutants in code no test reaches.
+- **A mutant on a module-level side effect cannot be killed, and that is a third category.**
+  Stryker switches mutants at runtime inside a warm process, so a statement that runs once at
+  import — `customElements.define(...)` above all — has already run with the original value by the
+  time any mutant is active. This is neither a weak test nor an equivalent mutant: it is outside
+  the runner's reach. Exclude it at the narrowest node with a `// Stryker disable next-line`
+  carrying that reason, and never widen the exclusion to the file.
 
 ## Documentation form
 

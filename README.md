@@ -7,7 +7,7 @@
 **Layer 2 of the rak200 baseline, for TypeScript**: the enforcing configuration and the prose that
 documents it, versioned together so a repository cannot have one without the other.
 
-Layer 1 — versioning, commits, the pipeline shape, testing and documentation *policy*, repository
+Layer 1 — versioning, commits, the pipeline shape, testing and documentation _policy_, repository
 hygiene — is language-agnostic and lives in
 [rak200/workflow](https://github.com/rak200/workflow), imported alongside this package.
 
@@ -39,7 +39,7 @@ export default [...base, { ignores: ['dist/**'] }];
 // tsconfig.json
 {
   "extends": "@rak200/coding-standard-ts/tsconfig",
-  "include": ["src", "tests"]
+  "include": ["src", "tests"],
 }
 ```
 
@@ -47,35 +47,37 @@ export default [...base, { ignores: ['dist/**'] }];
 // vitest.config.js
 import { defineConfig, mergeConfig } from 'vitest/config';
 import base from '@rak200/coding-standard-ts/vitest';
-export default mergeConfig(base, defineConfig({ /* what to look at */ }));
+export default mergeConfig(base, defineConfig({/* what to look at */}));
 ```
 
-```jsonc
-// stryker.config.json
-{ "extends": "@rak200/coding-standard-ts/stryker" }
+```js
+// stryker.config.js
+import base from '@rak200/coding-standard-ts/stryker';
+export default { ...base };
 ```
 
 ```markdown
 <!-- CLAUDE.md -->
+
 @.rak200/CONVENTIONS.md
 @node_modules/@rak200/coding-standard-ts/CONVENTIONS.md
 ```
 
-**The consumer owns *what to look at*, every time.** No `files`, `include`, `ignores` or `paths`
+**The consumer owns _what to look at_, every time.** No `files`, `include`, `ignores` or `paths`
 are set in any shared config here — a relative path in a shared config resolves against the file
 that declares it, which is inside the installed package. The PHP standard shipped that mistake in
 two configs and both were unusable in the first repository that imported them.
 
 ## What it fixes in place
 
-| Config | The decision it carries |
-| --- | --- |
-| `eslint.config.js` | `strictTypeChecked` + `stylisticTypeChecked`, then `eslint-config-prettier` |
-| `tsconfig.base.json` | `strict`, plus the eight options `strict` does not include |
-| `.prettierrc.json` | 100 columns, single quotes, trailing commas, LF |
-| `stryker.config.json` | `thresholds.break: 100`; a survivor is killed, never accommodated |
-| `vitest.base.js` | v8 coverage reported as clover, which the floor binary reads |
-| `bin/coverage-floor` | the `coverage` verb: a clover report against the repo's `.coverage-floor` |
+| Config               | The decision it carries                                                     |
+| -------------------- | --------------------------------------------------------------------------- |
+| `eslint.config.js`   | `strictTypeChecked` + `stylisticTypeChecked`, then `eslint-config-prettier` |
+| `tsconfig.base.json` | `strict`, plus the eight options `strict` does not include                  |
+| `.prettierrc.json`   | 100 columns, single quotes, trailing commas, LF                             |
+| `stryker.config.js`  | `thresholds.break: 100`; a survivor is killed, never accommodated           |
+| `vitest.base.js`     | v8 coverage reported as clover, which the floor binary reads                |
+| `bin/coverage-floor` | the `coverage` verb: a clover report against the repo's `.coverage-floor`   |
 
 **TypeScript is pinned at 6.0 and that is a ceiling, not a floor.** `typescript-eslint` accepts
 `>=4.8.4 <6.1.0`, so TypeScript 7 — released and stable — cannot be adopted without giving up

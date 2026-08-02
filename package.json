@@ -17,7 +17,7 @@
     "./eslint": "./eslint.config.js",
     "./tsconfig": "./tsconfig.base.json",
     "./prettier": "./.prettierrc.json",
-    "./stryker": "./stryker.config.json",
+    "./stryker": "./stryker.config.js",
     "./vitest": "./vitest.base.js"
   },
   "bin": {
@@ -28,7 +28,7 @@
     "eslint.config.js",
     "tsconfig.base.json",
     ".prettierrc.json",
-    "stryker.config.json",
+    "stryker.config.js",
     "vitest.base.js",
     "CONVENTIONS.md"
   ],
