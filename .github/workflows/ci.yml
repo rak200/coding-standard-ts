@@ -1,0 +1,25 @@
+name: CI
+
+on:
+  push:
+    branches: [master]
+  pull_request:
+    branches: [master]
+
+# A caller CAPS the permissions of the workflow it calls. This variant runs the
+# language-agnostic half only, which needs nothing beyond read.
+permissions:
+  contents: read
+
+concurrency:
+  group: ${{ github.workflow }}-${{ github.ref }}
+  cancel-in-progress: ${{ github.event_name == 'pull_request' }}
+
+jobs:
+  # A configuration package has no src/ and no suite: what it ships IS the
+  # configuration, so the language pipeline has nothing to run and the
+  # language-agnostic conformance half is the whole of its CI.
+  ci:
+    uses: rak200/.github/.github/workflows/base.yml@1.4.1
+    with:
+      variant: ts-config

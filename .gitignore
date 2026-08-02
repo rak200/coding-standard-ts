@@ -1,0 +1,9 @@
+/node_modules/
+/vendor/
+.claude/
+/dist/
+/coverage/
+/reports/
+/.stryker-tmp/
+*.tsbuildinfo
+semgrep.sarif

@@ -1,0 +1,4 @@
+# Revisions ignored by `git blame` — bulk, no-behaviour-change reformatting only.
+# Enable locally: git config blame.ignoreRevsFile .git-blame-ignore-revs
+# Entries are appended by the style-commit bot; one SHA per line, with a comment.
+# Everything above this line is a seed; everything below is this repository's history.

@@ -1,0 +1,25 @@
+# Line endings are LF everywhere, working tree included: development happens on
+# Windows and CI on Linux, and without this the tree is platform-dependent.
+* text=auto eol=lf
+
+# The distribution tarball carries consumption, not development. This file is
+# per-variant because what counts as "development" is: a package that ships
+# configuration distributes the very .dist files a library hides.
+/.github/                export-ignore
+/.githooks/              export-ignore
+/.rak200                 export-ignore
+/.gitmodules             export-ignore
+/tests/                  export-ignore
+/docs/                   export-ignore
+/.editorconfig           export-ignore
+/.gitattributes          export-ignore
+/.gitignore              export-ignore
+/.git-blame-ignore-revs  export-ignore
+/.coverage-floor         export-ignore
+/CLAUDE.md               export-ignore
+/ROADMAP.md              export-ignore
+/ARCHITECTURE.md         export-ignore
+
+# Deliberately NOT export-ignored here, and this is the whole reason the file is
+# per-variant: in a configuration package the shared configs and CONVENTIONS.md are
+# the product. The `ts` variant hides exactly what this one must ship.

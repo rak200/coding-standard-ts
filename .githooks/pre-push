@@ -1,0 +1,46 @@
+#!/usr/bin/env sh
+# Preventive half of secret scanning. The push is the moment content leaves the
+# machine — the last point at which prevention is still prevention.
+#
+# Enable per clone (local git config, which no platform can enforce for you):
+#   git config core.hooksPath .githooks
+set -eu
+
+if ! command -v gitleaks >/dev/null 2>&1; then
+  echo "pre-push: gitleaks is not installed — refusing to push." >&2
+  echo "  Install it (https://github.com/gitleaks/gitleaks) or, if you have" >&2
+  echo "  genuinely decided to push without it, use --no-verify deliberately." >&2
+  exit 1
+fi
+
+# An all-zero sha is git's way of saying "this ref does not exist there".
+is_absent() { case "$1" in *[!0]*) return 1 ;; *) return 0 ;; esac; }
+
+# git feeds this hook one line per ref being pushed:
+#   <local ref> <local sha> <remote ref> <remote sha>
+#
+# Scan the COMMITS BEING PUSHED. The obvious-looking `gitleaks protect --staged`
+# scans the index — a pre-COMMIT tool, as its own help says — and at push time
+# nothing is staged, so it reported "0 commits scanned" and passed on every push it
+# ever ran. The check existed, cost a second, and could not fail.
+status=0
+while read -r _local_ref local_sha _remote_ref remote_sha; do
+  # Deleting a branch pushes no content.
+  is_absent "$local_sha" && continue
+
+  if is_absent "$remote_sha"; then
+    # A new branch: scan what it adds over everything the remote already has,
+    # rather than its whole history back to the root commit.
+    range="$local_sha --not --remotes"
+  else
+    range="$remote_sha..$local_sha"
+  fi
+
+  echo "pre-push: scanning $range for secrets…"
+  gitleaks git --no-banner --redact --log-opts="$range" . || status=1
+done
+
+if [ "$status" -ne 0 ]; then
+  echo "pre-push: gitleaks found a secret. Nothing was pushed." >&2
+  exit 1
+fi
