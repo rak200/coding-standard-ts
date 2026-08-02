@@ -26,7 +26,15 @@ export default tseslint.config(
         languageOptions: {
             // Type-aware rules need a program. `projectService` builds it from the
             // consumer's own tsconfig without this file naming one.
-            parserOptions: { projectService: true },
+            //
+            // `allowDefaultProject` covers the config files every repository keeps at
+            // its root — eslint.config.js, vitest.config.js and their kin. A consumer's
+            // tsconfig includes `src`, not those, so without it the linter refuses to
+            // parse the very files that configure it: "was not found by the project
+            // service". Found by the first repository that imported this config.
+            parserOptions: {
+                projectService: { allowDefaultProject: ['*.js', '*.mjs', '*.cjs'] },
+            },
         },
     },
     // Last, always: turns off every rule that would argue with the formatter. Two tools

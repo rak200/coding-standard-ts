@@ -80,6 +80,11 @@ fixed — a suppression that outlives its cause is worse than the error it hid.
 is not a place to spend judgement, and every rule that could disagree with the formatter is turned
 off in the ESLint config rather than fought.
 
+**Indentation is four spaces, not the two a JavaScript developer expects**, and that is deliberate
+rather than an oversight: Prettier reads the repository's `.editorconfig`, which is a Layer 1 seed
+shared with every other language in the ecosystem. One indent width across the estate beats each
+language's local habit — and the width is not a decision worth a per-language exception.
+
 ## Testing
 
 Layer 1 sets the policy — mirrored trees, one file per unit, contract assertions. In TypeScript:
