@@ -56,12 +56,24 @@ import base from '@rak200/coding-standard-ts/stryker';
 export default { ...base };
 ```
 
+```js
+// prettier.config.js
+export { default } from '@rak200/coding-standard-ts/prettier';
+```
+
 ```markdown
 <!-- CLAUDE.md -->
 
 @.rak200/CONVENTIONS.md
 @node_modules/@rak200/coding-standard-ts/CONVENTIONS.md
 ```
+
+**Every shared config is a module, and only TypeScript's is not.** ESLint, Vitest, Stryker and
+Prettier share configuration only through a JavaScript module a consumer imports; none of their
+JSON forms has a working `extends` that resolves a package. Stryker ignores the key with a WARN
+and silently disables its own threshold; Prettier has no such key at all, so a consumer's JSON
+file simply replaces this one. `tsconfig.json` is the exception — its `extends` resolves a package
+specifier natively — which is why `tsconfig.base.json` stays JSON.
 
 **The consumer owns _what to look at_, every time.** No `files`, `include`, `ignores` or `paths`
 are set in any shared config here — a relative path in a shared config resolves against the file
@@ -74,7 +86,7 @@ two configs and both were unusable in the first repository that imported them.
 | -------------------- | --------------------------------------------------------------------------- |
 | `eslint.config.js`   | `strictTypeChecked` + `stylisticTypeChecked`, then `eslint-config-prettier` |
 | `tsconfig.base.json` | `strict`, plus the eight options `strict` does not include                  |
-| `.prettierrc.json`   | 100 columns, single quotes, trailing commas, LF                             |
+| `prettier.config.js` | 100 columns, single quotes, trailing commas, LF                             |
 | `stryker.config.js`  | `thresholds.break: 100`; a survivor is killed, never accommodated           |
 | `vitest.base.js`     | v8 coverage reported as clover, which the floor binary reads                |
 | `bin/coverage-floor` | the `coverage` verb: a clover report against the repo's `.coverage-floor`   |
