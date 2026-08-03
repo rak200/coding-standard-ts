@@ -5,21 +5,45 @@ on:
     branches: [master]
   pull_request:
     branches: [master]
+  # The full mutation run. A pull request mutates only its changed files, so the
+  # cross-file drift a diff structurally cannot see is caught here — run it before a
+  # significant release. Not a `paths:` filter and not on the required-check path:
+  # a workflow that publishes a required check carries no filter (non-negotiable 3).
+  workflow_dispatch:
 
-# A caller CAPS the permissions of the workflow it calls. This variant runs the
-# language-agnostic half only, which needs nothing beyond read.
+# A caller CAPS the permissions of the workflow it calls: a job in the reusable
+# workflow that asks for more than this gets `startup_failure` and publishes NO
+# check at all — the required check simply never appears and the PR waits forever.
 permissions:
   contents: read
+  security-events: write   # SARIF upload from the scanner
+  actions: read            # codeql-action reads the run (private repos)
+  id-token: write          # Codecov OIDC
 
 concurrency:
   group: ${{ github.workflow }}-${{ github.ref }}
   cancel-in-progress: ${{ github.event_name == 'pull_request' }}
 
 jobs:
-  # A configuration package has no src/ and no suite: what it ships IS the
-  # configuration, so the language pipeline has nothing to run and the
-  # language-agnostic conformance half is the whole of its CI.
+  # The language pipeline, NOT the language-agnostic half this used to call. A
+  # configuration package is an npm package that ships executable code, and a package
+  # whose CI never installs it has no CI: for as long as this called `base.yml`,
+  # nothing here ran a verb, measured a line or mutated a statement — and the run was
+  # green throughout, because everything it did run passed.
+  #
+  # The comment that stood here said a config package "has no src/ and no suite", and
+  # that was true when it was written. Nothing re-examined it when one acquired both.
+  #
+  # `variant` names this repository's own seed set. Without it the pipeline would
+  # grade a config package against the `ts` seeds, which hide the very files it exists
+  # to ship.
+  #
+  # The job MUST be named `ci` and the reusable workflow's last job `gate`: together
+  # they publish the required check `ci / gate`. Pin an exact tag, never a moving alias.
   ci:
-    uses: rak200/.github/.github/workflows/base.yml@1.8.0
+    uses: rak200/.github/.github/workflows/js.yml@1.10.0
     with:
       variant: ts-config
+      # No DOM here, so nothing to install a browser for. The `ts` variant leaves this
+      # on because a component library drives one; a package of configuration does not.
+      browser: false

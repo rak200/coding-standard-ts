@@ -14,10 +14,10 @@
     "node": ">=22.13.0"
   },
   "exports": {
-    "./eslint": "./eslint.config.js",
+    "./eslint": "./eslint.base.js",
     "./tsconfig": "./tsconfig.base.json",
-    "./prettier": "./prettier.config.js",
-    "./stryker": "./stryker.config.js",
+    "./prettier": "./prettier.base.js",
+    "./stryker": "./stryker.base.js",
     "./vitest": "./vitest.base.js"
   },
   "bin": {
@@ -25,10 +25,11 @@
   },
   "files": [
     "bin",
-    "eslint.config.js",
+    "src",
+    "eslint.base.js",
     "tsconfig.base.json",
-    "prettier.config.js",
-    "stryker.config.js",
+    "prettier.base.js",
+    "stryker.base.js",
     "vitest.base.js",
     "CONVENTIONS.md"
   ],
@@ -36,7 +37,14 @@
     "access": "public"
   },
   "scripts": {
-    "validate": "publint --strict"
+    "validate": "publint --strict",
+    "lint": "prettier --check .",
+    "fix": "prettier --write . && eslint --fix .",
+    "analyse": "eslint .",
+    "test": "vitest run",
+    "coverage": "node bin/coverage-floor.js",
+    "scan": "semgrep scan --config=p/javascript --severity=ERROR --sarif -o semgrep.sarif",
+    "mutation": "stryker run"
   },
   "dependencies": {
     "@eslint/js": "^10.0.1",
@@ -52,5 +60,9 @@
     "typescript": "^6.0.3",
     "typescript-eslint": "^8.65.0",
     "vitest": "^4.1.10"
+  },
+  "devDependencies": {
+    "@types/node": "^26.1.2",
+    "globals": "^17.9.0"
   }
 }

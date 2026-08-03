@@ -47,7 +47,7 @@ permissions:
 jobs:
   release:
     if: github.event_name == 'push'
-    uses: rak200/.github/.github/workflows/release.yml@1.8.0
+    uses: rak200/.github/.github/workflows/release.yml@1.10.0
 
   publish:
     needs: release
@@ -65,6 +65,6 @@ jobs:
     permissions:
       contents: read
       id-token: write
-    uses: rak200/.github/.github/workflows/npm-publish.yml@1.8.0
+    uses: rak200/.github/.github/workflows/npm-publish.yml@1.10.0
     with:
       tag: ${{ github.event_name == 'workflow_dispatch' && inputs.republish || needs.release.outputs.tag_name }}
