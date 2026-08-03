@@ -32,6 +32,9 @@
     "vitest.base.js",
     "CONVENTIONS.md"
   ],
+  "publishConfig": {
+    "access": "public"
+  },
   "scripts": {
     "validate": "publint --strict"
   },
