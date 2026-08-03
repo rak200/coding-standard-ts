@@ -23,3 +23,13 @@
 # Deliberately NOT export-ignored here, and this is the whole reason the file is
 # per-variant: in a configuration package the shared configs and CONVENTIONS.md are
 # the product. The `ts` variant hides exactly what this one must ship.
+#
+# WHAT THIS FILE DOES NOT GOVERN, so nobody edits it expecting the wrong effect:
+# `export-ignore` applies to `git archive` — GitHub's source tarballs and zips, and
+# a Composer dist fetched from them. **npm never reads it.** What a package published
+# to npm ships is the `files` array in package.json, and what a package installed as
+# a git dependency ships is the same `files` array after npm clones and packs. So on
+# the TypeScript side the two lists live in different files, and only one of them
+# reaches a consumer through the registry. Keep them saying the same thing anyway:
+# the tarball a human downloads from GitHub should not disagree with the one npm
+# installs about what this package is.

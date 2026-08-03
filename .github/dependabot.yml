@@ -7,10 +7,15 @@ updates:
     groups:
       actions:
         patterns: ["*"]
+  # Daily, while every other ecosystem here is weekly, and the asymmetry is the point:
+  # this is the only pin whose staleness BLOCKS A MERGE. Conformance fails when a seed
+  # the repository consumes changed under an old pin, so the gap between a baseline
+  # release and the next Dependabot pass is a gap where every pull request opens red.
+  # An outdated library is merely outdated; an outdated baseline stops the work.
   - package-ecosystem: "gitsubmodule"
     directory: "/"
     schedule:
-      interval: "weekly"
+      interval: "daily"
   - package-ecosystem: "npm"
     directory: "/"
     schedule:

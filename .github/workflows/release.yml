@@ -1,0 +1,70 @@
+name: release
+
+# Cuts releases from master: release-please reads the commit history, opens and
+# maintains a Release PR, and merging that PR cuts the bare tag and the GitHub
+# Release. The version is derived here and typed nowhere.
+#
+# The TypeScript variant then PUBLISHES, in this same run. A tag and a Release
+# created with the repository's own GITHUB_TOKEN start no new workflow, so an
+# `on: release: published` job would never fire — the publish hangs off the release
+# job's outputs instead. PHP has no equivalent job because Packagist resolves from
+# the git tag: there the tag is already the publication.
+#
+# THIS FILENAME IS REGISTERED WITH NPM. Trusted publishing validates the caller
+# workflow's filename, not the reusable one that runs `npm publish`, so the trusted
+# publisher for the package names `release.yml`. Renaming this file breaks publishing
+# with an authentication error that says nothing about the rename.
+
+on:
+  push:
+    branches: [master]
+  # Republishing a tag whose publish failed. A release that was cut but never reached
+  # the registry is a real state with no other way out: the tag is immutable, so the
+  # alternatives are publishing by hand — which abandons the automation at the one
+  # moment it matters — or burning a version number to work around a CI failure, which
+  # writes the failure into the changelog forever. Measured need, not a hypothetical:
+  # rak200/ui 0.1.1 was cut and its publish failed on an `.npmrc` defect.
+  #
+  # It stays on THIS file rather than moving to its own, because npm's trusted
+  # publisher is registered against this filename. A dispatch from release.yml still
+  # presents release.yml as the workflow that started the run.
+  workflow_dispatch:
+    inputs:
+      republish:
+        description: 'Tag to publish to npm, e.g. 0.1.1. Only for a release already cut whose publish failed.'
+        type: string
+        required: true
+
+# The caller caps what the called workflow may request. release-please cuts the tag
+# and the Release, and opens the Release PR, so it needs both — capped at read here,
+# it would `startup_failure` and never publish anything to notice. `id-token` is the
+# publish credential and must be granted on both sides of the call.
+permissions:
+  contents: write
+  pull-requests: write
+  id-token: write
+
+jobs:
+  release:
+    if: github.event_name == 'push'
+    uses: rak200/.github/.github/workflows/release.yml@1.8.0
+
+  publish:
+    needs: release
+    # `always()` is load-bearing and for the same reason it is on every gate here: on a
+    # dispatch the release job is SKIPPED, and a needs-dependency on a skipped job skips
+    # this one too. With it, both paths have to be stated positively — a dispatch never
+    # reaches the release branch, and a push never reaches the republish branch, so
+    # neither can publish the wrong thing by falling through.
+    if: >-
+      always() && (
+        (github.event_name == 'push' && needs.release.result == 'success'
+          && needs.release.outputs.release_created == 'true')
+        || github.event_name == 'workflow_dispatch'
+      )
+    permissions:
+      contents: read
+      id-token: write
+    uses: rak200/.github/.github/workflows/npm-publish.yml@1.8.0
+    with:
+      tag: ${{ github.event_name == 'workflow_dispatch' && inputs.republish || needs.release.outputs.tag_name }}
