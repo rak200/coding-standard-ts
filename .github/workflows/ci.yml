@@ -20,6 +20,6 @@ jobs:
   # configuration, so the language pipeline has nothing to run and the
   # language-agnostic conformance half is the whole of its CI.
   ci:
-    uses: rak200/.github/.github/workflows/base.yml@1.4.1
+    uses: rak200/.github/.github/workflows/base.yml@1.7.0
     with:
       variant: ts-config
