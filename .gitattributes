@@ -20,9 +20,30 @@
 /ROADMAP.md              export-ignore
 /ARCHITECTURE.md         export-ignore
 
+# A configuration package still has development of its own, and this is where the
+# two lists part company. The consumer-side configs here — the ones without `.base`
+# in the name — configure *this* package's own run: they name its src/ and its
+# tests/, and a consumer that received one would be configuring nothing. Release
+# plumbing is the same kind of thing.
+#
+# These lines arrived when the package acquired a suite. Before that it had no
+# development to separate, which is why a config variant looked for a while like a
+# variant that exports everything. Note what is NOT here: `*.base.*` is the product,
+# and shipping it is the entire point of the package.
+/eslint.config.js               export-ignore
+/prettier.config.js             export-ignore
+/stryker.config.js              export-ignore
+/vitest.config.js               export-ignore
+/tsconfig.json                  export-ignore
+/.prettierignore                export-ignore
+/release-please-config.json     export-ignore
+/.release-please-manifest.json  export-ignore
+
 # Deliberately NOT export-ignored here, and this is the whole reason the file is
 # per-variant: in a configuration package the shared configs and CONVENTIONS.md are
-# the product. The `ts` variant hides exactly what this one must ship.
+# the product. The `ts` variant hides exactly what this one must ship. `src/` and
+# `bin/` join them: a config package that ships an executable ships the code behind
+# it.
 #
 # WHAT THIS FILE DOES NOT GOVERN, so nobody edits it expecting the wrong effect:
 # `export-ignore` applies to `git archive` — GitHub's source tarballs and zips, and
