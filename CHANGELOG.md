@@ -1,5 +1,12 @@
 # Changelog
 
+## [0.4.3](https://github.com/rak200/coding-standard-ts/compare/0.4.2...0.4.3) (2026-08-03)
+
+
+### Features
+
+* the standard is tested like anything it governs ([#15](https://github.com/rak200/coding-standard-ts/issues/15)) ([f778571](https://github.com/rak200/coding-standard-ts/commit/f778571e36dc3aae2bf80a4a1f26441311dca0c9))
+
 ## [0.4.2](https://github.com/rak200/coding-standard-ts/compare/0.4.1...0.4.2) (2026-08-03)
 
 
