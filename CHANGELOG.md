@@ -1,5 +1,12 @@
 # Changelog
 
+## [0.4.2](https://github.com/rak200/coding-standard-ts/compare/0.4.1...0.4.2) (2026-08-03)
+
+
+### Bug Fixes
+
+* TypeScript 7 has no stable eslint support, and the graph stopped resolving ([#13](https://github.com/rak200/coding-standard-ts/issues/13)) ([2e87b70](https://github.com/rak200/coding-standard-ts/commit/2e87b70127c9ad5eb51d19eba99fdc50ea045b34))
+
 ## [0.4.1](https://github.com/rak200/coding-standard-ts/compare/0.4.0...0.4.1) (2026-08-03)
 
 
