@@ -16,6 +16,21 @@ updates:
     directory: "/"
     schedule:
       interval: "daily"
+    # The baseline is exempt from cooldown, and without this it never updates at all.
+    # Measured on rak200/utils: the updater ran green, reported `No PRs affected`, and the
+    # log said `Filtered out 26 versions due to cooldown` / `All versions filtered by
+    # cooldown, falling back to current version`. Nothing here configured a cooldown —
+    # the schema documents it as opt-in — so one is being applied that this file never
+    # asked for, and rak200/workflow is two days old, which puts its entire history
+    # inside any window. A baseline that cuts several releases a day cannot wait out a
+    # feature designed to let versions settle; that is the opposite of why the schedule
+    # above is daily.
+    #
+    # `exclude: ["*"]` rather than `default-days: 0` — the schema sets `minimum: 1` on
+    # every `*-days` field except `semver-patch-days`, so zero is not expressible and
+    # exclusion is the only lever that turns it off.
+    cooldown:
+      exclude: ["*"]
   - package-ecosystem: "npm"
     directory: "/"
     schedule:
