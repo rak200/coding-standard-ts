@@ -98,7 +98,13 @@ language's local habit — and the width is not a decision worth a per-language 
 
 Layer 1 sets the policy — mirrored trees, one file per unit, contract assertions. In TypeScript:
 
-- **Vitest**, with the suite beside the source it covers.
+- **Vitest**, over a `tests/` tree mirroring `src/` — Layer 1's mirrored trees, read literally,
+  and the same shape the PHP side has. Colocating `button.test.ts` beside `button.ts` is the
+  tempting JavaScript habit and it costs two things a suffix cannot buy back: the test files sit
+  inside the published `src/` tree, where `export-ignore` cannot reach them by directory, and
+  every tool that must not see them — the build, coverage, the mutation engine, the pipeline's
+  changed-file filter — carves them out by filename instead. A file named `*.spec.ts` then becomes
+  published product and mutable source, on a green pipeline.
 - **Component tests run in a real browser** (Vitest browser mode over Playwright), not in a DOM
   emulator. A custom element that only ever runs under jsdom is a component nobody has tested:
   shadow DOM, focus, layout and event ordering are exactly where the emulator and the browser
