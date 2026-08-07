@@ -1,5 +1,12 @@
 # Changelog
 
+## [0.4.4](https://github.com/rak200/coding-standard-ts/compare/0.4.3...0.4.4) (2026-08-07)
+
+
+### Bug Fixes
+
+* the Testing section prescribed colocated tests, against RFC 0017 ([#20](https://github.com/rak200/coding-standard-ts/issues/20)) ([1fa5976](https://github.com/rak200/coding-standard-ts/commit/1fa5976d80bc20361acf31d1b8c8edb4a3681905))
+
 ## [0.4.3](https://github.com/rak200/coding-standard-ts/compare/0.4.2...0.4.3) (2026-08-03)
 
 
