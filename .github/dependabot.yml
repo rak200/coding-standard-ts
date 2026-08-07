@@ -38,3 +38,25 @@ updates:
     groups:
       dev:
         patterns: ["*"]
+    # A TypeScript MAJOR is held; minors and patches flow normally.
+    #
+    # This package ships `typescript` and `typescript-eslint` to consumers as a matched
+    # pair, and the linter's peer range is what decides when the compiler may move:
+    # `typescript-eslint@8.66.0` declares `peer typescript@">=4.8.4 <6.1.0"`, so with
+    # TypeScript 7 published as `latest` there is no combination npm will install. The
+    # bump does not fail a test — `npm ci` refuses to resolve, so nothing compiles, and
+    # the group carries every other update down with it.
+    #
+    # REMOVE THIS WHEN the peer range admits the next major. That is a fact to check,
+    # not a memory to keep:
+    #
+    #   npm view typescript-eslint peerDependencies.typescript
+    #
+    # If the printed range no longer stops below the current `typescript` major, delete
+    # this block in the same pull request that takes the major. Adopting a compiler major
+    # here is not a version bump: it is a change to the standard every TS repository
+    # consumes, and the README's `typescript-<major>` badge is a mirror badge that CI
+    # fails until it follows.
+    ignore:
+      - dependency-name: "typescript"
+        update-types: ["version-update:semver-major"]
