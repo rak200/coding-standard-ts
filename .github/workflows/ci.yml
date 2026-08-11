@@ -41,7 +41,7 @@ jobs:
   # The job MUST be named `ci` and the reusable workflow's last job `gate`: together
   # they publish the required check `ci / gate`. Pin an exact tag, never a moving alias.
   ci:
-    uses: rak200/.github/.github/workflows/js.yml@1.10.0
+    uses: rak200/.github/.github/workflows/js.yml@1.11.1
     with:
       variant: ts-config
       # No DOM here, so nothing to install a browser for. The `ts` variant leaves this
