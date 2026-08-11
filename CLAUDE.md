@@ -5,7 +5,7 @@ Guidance for Claude Code when working in this repository.
 @.rak200/CONVENTIONS.md
 @CONVENTIONS.md
 
-> The second import is **local**: this repository *is* Layer 2. Everywhere else it reads
+> The second import is **local**: this repository _is_ Layer 2. Everywhere else it reads
 > `@node_modules/@rak200/coding-standard-ts/CONVENTIONS.md`, because npm does not install a
 > package into its own tree. If `.rak200/` is empty, the clone skipped its submodule:
 > `git submodule update --init --recursive`.
@@ -36,7 +36,7 @@ tests/                # mirrors the units above, one test file each
 
 **Four of the five are modules, and `tsconfig` is the exception** — because TypeScript's `extends`
 resolves a package specifier and the other four tools' do not. A JSON config for one of those four
-*replaces* this standard instead of extending it, silently, while `lint` stays green; the reason is
+_replaces_ this standard instead of extending it, silently, while `lint` stays green; the reason is
 written out for Prettier in `CONVENTIONS.md` §Code style and it generalises. The `exports` map in
 `package.json` is the public surface — a path not listed there is not consumable.
 
