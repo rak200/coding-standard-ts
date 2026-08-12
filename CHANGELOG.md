@@ -1,5 +1,12 @@
 # Changelog
 
+## [0.4.5](https://github.com/rak200/coding-standard-ts/compare/0.4.4...0.4.5) (2026-08-11)
+
+
+### Bug Fixes
+
+* CLAUDE.md imported a Layer 2 path that cannot exist ([#28](https://github.com/rak200/coding-standard-ts/issues/28)) ([e9f77e2](https://github.com/rak200/coding-standard-ts/commit/e9f77e26ebfd8c1918209000c2c5387c5b8e4153))
+
 ## [0.4.4](https://github.com/rak200/coding-standard-ts/compare/0.4.3...0.4.4) (2026-08-07)
 
 
