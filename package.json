@@ -1,6 +1,6 @@
 {
   "name": "@rak200/coding-standard-ts",
-  "version": "0.4.5",
+  "version": "0.4.6",
   "description": "Layer 2 of the rak200 baseline for TypeScript: the enforcing configuration and the prose that documents it",
   "license": "MIT",
   "author": "rak200 <rak.ricardo@windowslive.com>",

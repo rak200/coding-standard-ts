@@ -1,5 +1,12 @@
 # Changelog
 
+## [0.4.6](https://github.com/rak200/coding-standard-ts/compare/0.4.5...0.4.6) (2026-08-13)
+
+
+### Features
+
+* the coverage ratchet's second mode stops being a notice and starts blocking ([#31](https://github.com/rak200/coding-standard-ts/issues/31)) ([26a4d4c](https://github.com/rak200/coding-standard-ts/commit/26a4d4c288f3e4c7ab5eb8ccfc1e66374b5ae769))
+
 ## [0.4.5](https://github.com/rak200/coding-standard-ts/compare/0.4.4...0.4.5) (2026-08-11)
 
 
