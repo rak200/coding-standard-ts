@@ -65,18 +65,32 @@ describe('coverage-floor', () => {
     });
 
     it('exits 0 and prints the measurement when the floor is met', () => {
-        writeFileSync(floorFile, '95\n');
+        writeFileSync(floorFile, '99\n');
 
         const { status, out } = run([report, floorFile]);
 
         expect(status).toBe(0);
-        expect(out).toContain('coverage 99.00% (99/100 statements), floor 95.00%');
+        expect(out).toContain('coverage 99.00% (99/100 statements), floor 99.00%');
     });
 
-    it('emits a notice when coverage has risen above the floor', () => {
+    it('emits a notice when coverage has risen inside the tolerance', () => {
+        writeFileSync(floorFile, '98.5\n');
+
+        const { status, out } = run([report, floorFile]);
+
+        expect(status).toBe(0);
+        expect(out).toContain('::notice::coverage rose to 99.00%');
+    });
+
+    it('exits 1 when coverage is more than one point above the floor', () => {
         writeFileSync(floorFile, '95\n');
 
-        expect(run([report, floorFile]).out).toContain('::notice::coverage rose to 99.00%');
+        const { status, out } = run([report, floorFile]);
+
+        expect(status).toBe(1);
+        expect(out).toContain(
+            '::error::coverage floor: 99.00% is more than 1.00 points above the floor of 95.00%',
+        );
     });
 
     it('exits 1 with a GitHub error annotation when the floor is missed', () => {

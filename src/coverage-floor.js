@@ -20,6 +20,13 @@ import { existsSync, readFileSync } from 'node:fs';
  */
 export const HARD_FLOOR = 95;
 
+/**
+ * How far above its declared floor a repository may sit without re-declaring it. Beyond
+ * this the gate fails, forcing the pull request that won the coverage to record it — the
+ * ratchet's second mode.
+ */
+export const TOLERANCE = 1;
+
 /** A condition the caller should report as a coverage-floor failure. */
 export class FloorError extends Error {
     /** @param {string} message */
@@ -105,7 +112,7 @@ export function parseClover(xml, label) {
  * @param {{ report: string, floorFile: string }} paths
  * @returns {{ actual: number, floor: number, total: number, covered: number, rose: boolean }}
  * @throws {FloorError} when either file is missing, unreadable as expected, or the
- *   measured coverage is below the floor
+ *   measured coverage is below the floor or more than {@link TOLERANCE} points above it
  */
 export function evaluate({ report, floorFile }) {
     if (!existsSync(floorFile)) {
@@ -136,8 +143,23 @@ export function evaluate({ report, floorFile }) {
         throw new FloorError(`${percent.toFixed(2)}% is below the floor of ${floor.toFixed(2)}%`);
     }
 
-    // The ratchet is reported, not enforced: failing a pull request for *improving*
-    // coverage is a different policy, and it would have to be decided rather than
-    // inherited from the word "monotonic".
+    // The ratchet is enforced above the tolerance, and this comment used to say the
+    // opposite: "reported, not enforced … it would have to be decided rather than
+    // inherited from the word monotonic". It had been decided — RFC 0017, *Testing policy
+    // and the coverage floor*, states the one-point band and the reason for it — and
+    // neither side read the other, so the estate carried a rule in prose and a refusal to
+    // implement it in code, each with its own argument. Both twins carried it, five hours
+    // apart, which is how the same hole grows in two languages.
+    //
+    // Rounded before comparing, not compared directly. `percent` is already rounded to two
+    // places while `floor` is whatever the file says, so `percent - floor` lands a few ulps
+    // above 1 at exactly the boundary and would fail a repository sitting precisely one
+    // point over — the one value the rule declares acceptable.
+    if (Math.round((percent - floor) * 100) / 100 > TOLERANCE) {
+        throw new FloorError(
+            `${percent.toFixed(2)}% is more than ${TOLERANCE.toFixed(2)} points above the floor of ${floor.toFixed(2)}% — raise the floor in this pull request, so the gain is locked in by a check rather than by anyone remembering`,
+        );
+    }
+
     return { actual: percent, floor, total, covered, rose: percent > floor };
 }
