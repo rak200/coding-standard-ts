@@ -154,6 +154,31 @@ describe('evaluate', () => {
         expect(evaluate({ report, floorFile })).toMatchObject({ actual: 99, rose: true });
     });
 
+    it('rounds the excess to two places and not to one', () => {
+        // 1.04 over the floor. At two places that is 1.04 and the gate fires; at one it
+        // is 1.00 and it does not. `Math.floor` gives 1 here and also does not, so this
+        // pins the rounding function on that side too. Carried over from the PHP twin,
+        // where Infection escaped four mutants on exactly this — the 2 becoming a 1 or a
+        // 3, and `round` becoming `floor` or `ceil` — because the boundary case above
+        // gives the same answer under every one of them. Stryker did not ask for these,
+        // and they are here anyway: the twins answer to one definition of the rule, so
+        // they owe the same assertions rather than the ones each mutator happens to want.
+        writeFileSync(floorFile, '97.96\n');
+        writeFileSync(report, clover(100, 99));
+
+        expect(() => evaluate({ report, floorFile })).toThrow(FloorError);
+    });
+
+    it('rounds the excess to two places and not to three', () => {
+        // The other side, and it has to pass: 1.004 over the floor is 1.00 at two places
+        // and inside the tolerance, 1.004 at three and outside it. `Math.ceil` gives 2
+        // and would fire, which pins the function in the direction the case above cannot.
+        writeFileSync(floorFile, '97.996\n');
+        writeFileSync(report, clover(100, 99));
+
+        expect(evaluate({ report, floorFile })).toMatchObject({ actual: 99, rose: true });
+    });
+
     it('fails more than one point above the floor, naming all three numbers', () => {
         writeFileSync(floorFile, '95\n');
         writeFileSync(report, clover(100, 99));
