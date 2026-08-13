@@ -131,17 +131,39 @@ describe('evaluate', () => {
         rmSync(dir, { recursive: true, force: true });
     });
 
-    it('passes when coverage is above the floor and reports the rise', () => {
-        writeFileSync(floorFile, '95\n');
+    it('passes when coverage rises inside the tolerance and reports the rise', () => {
+        writeFileSync(floorFile, '98.5\n');
         writeFileSync(report, clover(100, 99));
 
         expect(evaluate({ report, floorFile })).toStrictEqual({
             actual: 99,
-            floor: 95,
+            floor: 98.5,
             total: 100,
             covered: 99,
             rose: true,
         });
+    });
+
+    it('passes at exactly the tolerance', () => {
+        // The boundary the rule declares acceptable, and the reason `evaluate` rounds the
+        // difference before comparing it: 99 - 98 is not 1 in binary floating point, and a
+        // direct `> TOLERANCE` fails this case while every other test passes.
+        writeFileSync(floorFile, '98\n');
+        writeFileSync(report, clover(100, 99));
+
+        expect(evaluate({ report, floorFile })).toMatchObject({ actual: 99, rose: true });
+    });
+
+    it('fails more than one point above the floor, naming all three numbers', () => {
+        writeFileSync(floorFile, '95\n');
+        writeFileSync(report, clover(100, 99));
+
+        // The whole message: the two numbers alone read as a complaint about improving
+        // coverage. The instruction is the half that makes it actionable, and a mutant
+        // dropping it leaves a gate nobody knows how to satisfy.
+        expect(() => evaluate({ report, floorFile })).toThrow(
+            '99.00% is more than 1.00 points above the floor of 95.00% — raise the floor in this pull request, so the gain is locked in by a check rather than by anyone remembering',
+        );
     });
 
     it('passes when coverage exactly meets the floor, and does not report a rise', () => {
