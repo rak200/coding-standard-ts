@@ -21,7 +21,8 @@
     "./vitest": "./vitest.base.js"
   },
   "bin": {
-    "coverage-floor": "./bin/coverage-floor.js"
+    "coverage-floor": "./bin/coverage-floor.js",
+    "rak200-scan": "./bin/rak200-scan.js"
   },
   "files": [
     "bin",
@@ -43,7 +44,7 @@
     "analyse": "eslint .",
     "test": "vitest run",
     "coverage": "node bin/coverage-floor.js",
-    "scan": "semgrep scan --config=p/javascript --severity=ERROR --sarif -o semgrep.sarif",
+    "scan": "node bin/rak200-scan.js",
     "mutation": "stryker run"
   },
   "dependencies": {
