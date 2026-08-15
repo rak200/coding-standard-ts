@@ -1,5 +1,12 @@
 # Changelog
 
+## [0.4.7](https://github.com/rak200/coding-standard-ts/compare/0.4.6...0.4.7) (2026-08-14)
+
+
+### Features
+
+* the scan verb binds to Layer 2, carrying the command the RFC decided ([#37](https://github.com/rak200/coding-standard-ts/issues/37)) ([62af792](https://github.com/rak200/coding-standard-ts/commit/62af792b5629a4bd9bcbeefefa8711604831dfbf))
+
 ## [0.4.6](https://github.com/rak200/coding-standard-ts/compare/0.4.5...0.4.6) (2026-08-13)
 
 
