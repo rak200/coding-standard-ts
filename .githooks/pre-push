@@ -13,6 +13,28 @@ if ! command -v gitleaks >/dev/null 2>&1; then
   exit 1
 fi
 
+# CI pins the scanner (GITLEAKS_VERSION in rak200/.github's base.yml). This half is
+# per-clone state no workflow can reach, so it asserts the same version here.
+#
+# Unpinned, the two halves of one control run different rule sets: a rule present in
+# one and absent in the other means a secret caught locally sails through CI, or the
+# reverse, and NEITHER half reports anything odd. Refusing on a mismatch is the same
+# choice as refusing on an absent install above — a control that silently degrades is
+# worse than one that is visibly missing.
+#
+# Not delegated to the config's `minVersion`: measured on 8.30.1, that logs a warning
+# and exits 0, so it grades nothing. Keep the enforcement here, where it can refuse.
+REQUIRED_GITLEAKS_VERSION=8.30.1
+
+installed_version=$(gitleaks version 2>/dev/null | tr -d '[:space:]')
+if [ "$installed_version" != "$REQUIRED_GITLEAKS_VERSION" ]; then
+  echo "pre-push: gitleaks $installed_version is installed; this estate pins $REQUIRED_GITLEAKS_VERSION." >&2
+  echo "  Two versions of one scanner are two rule sets, and a disagreement between" >&2
+  echo "  them is silent on both sides. Install the pinned version, or bump it here" >&2
+  echo "  and in base.yml together — never one alone." >&2
+  exit 1
+fi
+
 # An all-zero sha is git's way of saying "this ref does not exist there".
 is_absent() { case "$1" in *[!0]*) return 1 ;; *) return 0 ;; esac; }
 
