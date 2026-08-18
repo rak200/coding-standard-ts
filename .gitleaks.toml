@@ -1,0 +1,34 @@
+# gitleaks configuration — the repo-level half of secret scanning.
+#
+# It exists before it is needed. Without this file gitleaks logs "no gitleaks config
+# found in path .gitleaks.toml, using default gitleaks config" and runs on defaults,
+# which is fine until the first legitimate high-entropy string lands: it reddens a
+# required check, and there is no repo-level place to permit it. Creating that place
+# under time pressure, on a red gate, is how an allowlist ends up wider than it needed
+# to be.
+#
+# Declarative only. `minVersion` warns and exits 0 — measured on 8.30.1, it grades
+# nothing — so the version agreement between this estate's two scanner halves is
+# enforced in .githooks/pre-push and pinned in base.yml, never here.
+minVersion = "8.30.1"
+
+# Extend, never replace. `useDefault = false` would silently drop every rule gitleaks
+# ships and leave a config that looks configured and detects almost nothing.
+[extend]
+useDefault = true
+
+# Allowlists go below, one block per exemption, each with a description saying why the
+# match is not a secret. Prefer the narrowest key that works — a path over a regex, a
+# specific rule over a global block — and never allowlist a whole directory to silence
+# one line.
+#
+# Deliberately empty: an allowlist entry is a hole, and an estate whose config permits
+# nothing is one whose gate still means what it says.
+#
+# [[allowlists]]
+# description = "documentation example, not a live credential"
+# paths = ['''docs/authentication\.md''']
+#
+# [[allowlists]]
+# description = "test fixture asserting the scanner fires"
+# regexes = ['''EXAMPLE_KEY_[A-Z0-9]+''']
