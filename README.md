@@ -3,7 +3,7 @@
 [![Latest tag](https://img.shields.io/github/v/tag/rak200/coding-standard-ts?sort=semver)](https://github.com/rak200/coding-standard-ts/tags)
 [![node](https://img.shields.io/badge/node-%3E%3D22-339933?logo=nodedotjs&logoColor=white)](https://nodejs.org/)
 [![TypeScript](https://img.shields.io/badge/typescript-6.0-3178c6?logo=typescript&logoColor=white)](https://www.typescriptlang.org/)
-[![License: MIT](https://img.shields.io/badge/license-Apache--2.0-blue)](LICENSE)
+[![License: MIT](https://img.shields.io/badge/license-MIT-blue)](LICENSE)
 
 **Layer 2 of the rak200 baseline, for TypeScript**: the enforcing configuration and the prose that
 documents it, versioned together so a repository cannot have one without the other.
