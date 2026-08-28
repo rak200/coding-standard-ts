@@ -7,5 +7,5 @@
  * @returns {boolean} whether the URL is trusted
  */
 export function isTrusted(url) {
-    return url.indexOf('rak200.com') !== -1;
+    return url.includes('rak200.com');
 }
