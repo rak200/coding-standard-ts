@@ -27,24 +27,33 @@ version: 2
 # `*-days` field except `semver-patch-days`, so zero is not expressible and exclusion is
 # the only lever that turns it off.
 updates:
+  # Daily, and it was `weekly` until 2026-08-30. This pin is graded by a CI check that reddens
+  # on staleness — `The pinned pipeline is not obsolete` — so the window between a baseline
+  # release and the next Dependabot pass is a window where every pull request in a consumer
+  # opens red. Weekly rested on baseline releases being the rarer event; rarer is a claim about
+  # frequency, where the gate makes one about blocking.
+  #
+  # Measured before changing it: the slots are weekly-all-Sunday and staggered per repository,
+  # so `1.11.1`, published on a Thursday, was not carried until the Sunday — three days, with
+  # seven the worst case for a release that misses a slot by minutes. Daily costs nothing on a
+  # quiet week: grouped, with nothing upstream to move, no pull request opens.
+  #
+  # RFC 0017 `E.42`. The asymmetry this file used to carry rested on the claim that Dependabot
+  # does not move a reusable-workflow pin at all — false, and false for three weeks before
+  # anyone read the pull requests that said so.
   - package-ecosystem: "github-actions"
     directory: "/"
     schedule:
-      interval: "weekly"
+      interval: "daily"
     cooldown:
       exclude: ["*"]
     groups:
       actions:
         patterns: ["*"]
-  # Daily, while every other ecosystem here is weekly, and the asymmetry is the point:
-  # this pin moves several times a day and its staleness stops the work. Conformance fails
-  # when a seed the repository consumes changed under an old pin, so every pull request
-  # opens red until it moves. An outdated library is merely outdated.
-  #
-  # The workflow pin above shares that property, and this comment used to say it did not.
-  # The obsolete-pipeline check reddens on a `base.yml` that moved under the pin exactly as
-  # conformance reddens on a seed; it stays weekly only because baseline releases are the
-  # rarer event, not because a stale one is harmless.
+  # Daily for the reason given above, and this pin was daily first: it moves several times a
+  # day and its staleness stops the work. Conformance fails when a seed the repository consumes
+  # changed under an old pin, so every pull request opens red until it moves. An outdated
+  # library is merely outdated, which is why a library ecosystem stays weekly.
   - package-ecosystem: "gitsubmodule"
     directory: "/"
     schedule:
