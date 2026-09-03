@@ -1,5 +1,12 @@
 # Changelog
 
+## [0.4.8](https://github.com/rak200/coding-standard-ts/compare/0.4.7...0.4.8) (2026-09-03)
+
+
+### Bug Fixes
+
+* **deps:** publish the Stryker 10 major that landed under a hidden type ([#61](https://github.com/rak200/coding-standard-ts/issues/61)) ([4e6257e](https://github.com/rak200/coding-standard-ts/commit/4e6257e05960aafdcc1e006874ba51f01d893418))
+
 ## [0.4.7](https://github.com/rak200/coding-standard-ts/compare/0.4.6...0.4.7) (2026-08-14)
 
 
