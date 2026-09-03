@@ -41,12 +41,20 @@ updates:
   # RFC 0017 `E.42`. The asymmetry this file used to carry rested on the claim that Dependabot
   # does not move a reusable-workflow pin at all — false, and false for three weeks before
   # anyone read the pull requests that said so.
+  #
+  # Declared, not inferred — see the package ecosystem below. `build` here for a reason of its
+  # own: these two carry no consumer-facing half to split on. A pipeline pin and a baseline pin
+  # change how this repository is BUILT, never what an installed package resolves, so they stay
+  # hidden.
   - package-ecosystem: "github-actions"
     directory: "/"
     schedule:
       interval: "daily"
     cooldown:
       exclude: ["*"]
+    commit-message:
+      prefix: "build"
+      include: "scope"
     groups:
       actions:
         patterns: ["*"]
@@ -60,15 +68,38 @@ updates:
       interval: "daily"
     cooldown:
       exclude: ["*"]
+    commit-message:
+      prefix: "build"
+      include: "scope"
+  # `commit-message` is DECLARED and not inferred. Absent it, Dependabot reads this
+  # repository's history and picks a prefix; it picked `build`, which every seed hides, so a
+  # dependency the consumer receives published nothing. Measured in `LIFECYCLE.md` §3.9.
+  #
+  # `dependency-type` is the closest thing Dependabot can label. What actually decides whether a
+  # release is owed is whether the declared constraint moved outside its previous range — a
+  # lock-only bump changes nothing for a consumer, and a library ships no lock. Dependabot cannot
+  # see that; it can see production versus development, and the two coincide often enough that
+  # `fix(deps)` is right far more often than `build(deps)` ever was.
+  #
+  # The split into two groups is not cosmetic: the prefix is chosen ONCE per pull request, so a
+  # group holding both kinds cannot be labelled correctly. The single group this replaces was
+  # named `dev` and carried `patterns: ["*"]` — in a `-config` repository nearly every dependency
+  # is production, because the tooling IS the product.
   - package-ecosystem: "npm"
     directory: "/"
     schedule:
       interval: "weekly"
     cooldown:
       exclude: ["*"]
+    commit-message:
+      prefix: "fix"
+      prefix-development: "build"
+      include: "scope"
     groups:
+      runtime:
+        dependency-type: "production"
       dev:
-        patterns: ["*"]
+        dependency-type: "development"
     # A TypeScript MAJOR is held; minors and patches flow normally.
     #
     # This package ships `typescript` and `typescript-eslint` to consumers as a matched
