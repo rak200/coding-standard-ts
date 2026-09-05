@@ -3,6 +3,8 @@
 [![Latest tag](https://img.shields.io/github/v/tag/rak200/coding-standard-ts?sort=semver)](https://github.com/rak200/coding-standard-ts/tags)
 [![node](https://img.shields.io/badge/node-%3E%3D22-339933?logo=nodedotjs&logoColor=white)](https://nodejs.org/)
 [![TypeScript](https://img.shields.io/badge/typescript-6.0-3178c6?logo=typescript&logoColor=white)](https://www.typescriptlang.org/)
+[![ESLint](https://img.shields.io/badge/ESLint-strictTypeChecked-4B32C3?logo=eslint&logoColor=white)](eslint.base.js)
+[![Mutation testing](https://img.shields.io/badge/Stryker-MSI%20100%25-brightgreen)](stryker.base.js)
 [![License: MIT](https://img.shields.io/badge/license-MIT-blue)](LICENSE)
 
 **Layer 2 of the rak200 baseline, for TypeScript**: the enforcing configuration and the prose that
