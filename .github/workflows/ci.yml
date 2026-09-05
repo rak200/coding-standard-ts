@@ -47,3 +47,8 @@ jobs:
       # No DOM here, so nothing to install a browser for. The `ts` variant leaves this
       # on because a component library drives one; a package of configuration does not.
       browser: false
+      # `docs/` stays mandatory; only the symbol enumeration stands down. This package's
+      # interface is not its exports — `package.json` names five configuration entry points
+      # and no path under `src/`, which exists so the binaries' logic is reachable by the
+      # tests instead of running in a child process, where coverage cannot see it.
+      symbol-pattern: ""
