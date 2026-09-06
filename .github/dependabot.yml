@@ -117,8 +117,9 @@ updates:
     # If the printed range no longer stops below the current `typescript` major, delete
     # this block in the same pull request that takes the major. Adopting a compiler major
     # here is not a version bump: it is a change to the standard every TS repository
-    # consumes, and the README's `typescript-<major>` badge is a mirror badge that CI
-    # fails until it follows.
+    # consumes, and the README's `typescript-<major.minor>` badge is a mirror badge that
+    # CI fails until it follows. That sentence shipped in 0.18.13 and was false until
+    # the check existed. rak200/workflow#62
     ignore:
       - dependency-name: "typescript"
         update-types: ["version-update:semver-major"]
