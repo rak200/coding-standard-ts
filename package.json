@@ -22,6 +22,7 @@
   },
   "bin": {
     "coverage-floor": "./bin/coverage-floor.js",
+    "rak200-mutate": "./bin/rak200-mutate.js",
     "rak200-scan": "./bin/rak200-scan.js"
   },
   "files": [
