@@ -76,6 +76,18 @@ describe('rangesFor', () => {
         expect(rangesFor('a.ts', hunks('@@ -7,3 +7,0'))).toStrictEqual([]);
     });
 
+    it('ignores a @@ that is not at the start of a line', () => {
+        // Without the anchor, a diff whose CONTENT quotes a hunk header — this file's own
+        // tests, for one — would contribute ranges from a line nobody changed.
+        expect(rangesFor('a.ts', '+const sample = "@@ -1 +9,2 @@";')).toStrictEqual([]);
+    });
+
+    it('reads multi-digit counts on both sides of the header', () => {
+        // `\\d` instead of `\\d+` truncates: `-10,25 +30,12` would read as `+3` and emit a
+        // range starting on the wrong line.
+        expect(rangesFor('a.ts', hunks('@@ -10,25 +30,12'))).toStrictEqual(['a.ts:30-41']);
+    });
+
     it('is empty for a diff with no hunk header at all', () => {
         expect(rangesFor('a.ts', 'diff --git a/a.ts b/a.ts\nsimilarity index 100%')).toStrictEqual(
             [],
@@ -100,6 +112,23 @@ describe('expand', () => {
             'src/**/*.ts',
             'src/a.ts:3-4',
         ]);
+    });
+
+    it('does not expand without a base ref, even when a diff could be read', () => {
+        // The guard is what makes a local run and the workflow_dispatch full run mutate what
+        // the config says. Without it they would narrow to whatever HEAD happens to differ by.
+        expect(expand(['src/a.ts'], '', () => hunks('@@ -1 +9,2'))).toStrictEqual(['src/a.ts']);
+    });
+
+    it('never reads a diff for a glob', () => {
+        /** @type {string[]} */
+        const seen = [];
+        const read = (/** @type {string} */ file) => {
+            seen.push(file);
+            return hunks('@@ -1 +9,2');
+        };
+        expect(expand(['src/**/*.ts'], 'origin/master', read)).toStrictEqual(['src/**/*.ts']);
+        expect(seen).toStrictEqual([]);
     });
 
     it('drops a file whose diff has no added line', () => {
@@ -146,6 +175,44 @@ describe('forward', () => {
         );
     });
 
+    it('joins multiple ranges with commas, in both spellings', () => {
+        // One range per hunk, and the separator matters: `--mutate a:1-2b:5-6` is one
+        // unreadable pattern, so Stryker would fall back to the config's whole library.
+        const two = () => hunks('@@ -1 +9,2', '@@ -50 +80,1');
+        expect(forward(['--mutate', 'src/a.ts'], 'origin/master', two).args).toStrictEqual([
+            '--mutate',
+            'src/a.ts:9-10,src/a.ts:80-80',
+        ]);
+        expect(forward(['--mutate=src/a.ts'], 'origin/master', two).args).toStrictEqual([
+            '--mutate=src/a.ts:9-10,src/a.ts:80-80',
+        ]);
+        expect(forward(['--mutate', 'src/a.ts'], 'origin/master', two).announced).toBe(
+            'src/a.ts:9-10,src/a.ts:80-80',
+        );
+    });
+
+    it('does not swallow the argument after the joined spelling', () => {
+        // `--mutate=x` carries its value; skipping the next argument as well would drop a
+        // flag silently — and a dropped `--concurrency` is a slower gate nobody can explain.
+        expect(
+            forward(['--mutate=src/a.ts', '--dry-run'], 'origin/master', read).args,
+        ).toStrictEqual(['--mutate=src/a.ts:9-10', '--dry-run']);
+    });
+
+    it('keeps every pattern when no drop is given', () => {
+        expect(forward(['--mutate', 'src/icons/a.ts'], '', never).args).toStrictEqual([
+            '--mutate',
+            'src/icons/a.ts',
+        ]);
+    });
+
+    it('reports no reason and no ranges when there is nothing to narrow', () => {
+        const { args, emptied, announced } = forward(['--dry-run'], '', never);
+        expect(args).toStrictEqual(['--dry-run']);
+        expect(emptied).toBe('');
+        expect(announced).toBe('');
+    });
+
     it('empties rather than forwarding an empty --mutate when no line was added', () => {
         const { args, emptied } = forward(['--mutate', 'src/a.ts'], 'origin/master', empty);
         // Forwarding `--mutate` with nothing in it falls back to the config's whole library:
@@ -185,6 +252,10 @@ describe('strykerBin', () => {
         ['the manifest is not an object', 'null'],
         ['there is no bin field', '{}'],
         ['bin is not an object', '{"bin":"x"}'],
+        ['bin is null', '{"bin":null}'],
+        ['the manifest is an array', '[]'],
+        ['the manifest is a string', '"x"'],
+        ['the manifest is a number', '42'],
         ['bin declares no stryker', '{"bin":{}}'],
         ['bin.stryker is not a string', '{"bin":{"stryker":1}}'],
     ])('refuses when %s', (_, text) => {

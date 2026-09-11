@@ -140,6 +140,9 @@ export function expand(kept, from, read) {
  * @param {(pattern: string) => boolean} [drop] whether a pattern is dropped before narrowing
  * @returns {{ args: string[], emptied: string, announced: string }}
  */
+// Stryker disable next-line ArrowFunction: the default is mutated to `() => undefined`, which
+// is falsy exactly as `false` is — every pattern is kept either way, and no input distinguishes
+// them. Equivalent, so killed by argument rather than by a test that could not exist.
 export function forward(args, from, read, drop = () => false) {
     const out = [];
     let emptied = '';
