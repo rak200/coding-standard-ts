@@ -1,5 +1,17 @@
 # Changelog
 
+## [0.4.9](https://github.com/rak200/coding-standard-ts/compare/0.4.8...0.4.9) (2026-09-11)
+
+
+### Features
+
+* rak200-mutate, so the mutation verb narrows to the lines a diff changed ([#80](https://github.com/rak200/coding-standard-ts/issues/80)) ([4d12282](https://github.com/rak200/coding-standard-ts/commit/4d122820c03d25b933c642897392dbbafd79ac3e))
+
+
+### Bug Fixes
+
+* the mutation floor measures again, through the command runner ([#83](https://github.com/rak200/coding-standard-ts/issues/83)) ([9bee905](https://github.com/rak200/coding-standard-ts/commit/9bee90576adf53fd3ced62f02f0b8f7d591b8428))
+
 ## [0.4.8](https://github.com/rak200/coding-standard-ts/compare/0.4.7...0.4.8) (2026-09-03)
 
 
