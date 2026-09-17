@@ -1,5 +1,12 @@
 # Changelog
 
+## [0.4.10](https://github.com/rak200/coding-standard-ts/compare/0.4.9...0.4.10) (2026-09-17)
+
+
+### Bug Fixes
+
+* **deps:** bump typescript-eslint from 8.69.0 to 8.70.0 in the runtime group ([#86](https://github.com/rak200/coding-standard-ts/issues/86)) ([d6fb865](https://github.com/rak200/coding-standard-ts/commit/d6fb865a6b6315053719df052a5e6640a2bcfdfe))
+
 ## [0.4.9](https://github.com/rak200/coding-standard-ts/compare/0.4.8...0.4.9) (2026-09-11)
 
 
