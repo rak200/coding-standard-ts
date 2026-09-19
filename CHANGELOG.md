@@ -1,5 +1,12 @@
 # Changelog
 
+## [0.4.12](https://github.com/rak200/coding-standard-ts/compare/0.4.11...0.4.12) (2026-09-19)
+
+
+### Bug Fixes
+
+* **deps:** hold Vitest at 4, which is the only major the mutation runner can drive ([#93](https://github.com/rak200/coding-standard-ts/issues/93)) ([7d7db82](https://github.com/rak200/coding-standard-ts/commit/7d7db822a1431159cc2528b2fd87b0f1ae6ac85f))
+
 ## [0.4.11](https://github.com/rak200/coding-standard-ts/compare/0.4.10...0.4.11) (2026-09-19)
 
 
