@@ -1,5 +1,5 @@
 import { execFileSync } from 'node:child_process';
-import { mkdtempSync, rmSync, writeFileSync } from 'node:fs';
+import { mkdirSync, mkdtempSync, rmSync, utimesSync, writeFileSync } from 'node:fs';
 import { tmpdir } from 'node:os';
 import { join } from 'node:path';
 import { fileURLToPath } from 'node:url';
@@ -17,13 +17,15 @@ const bin = fileURLToPath(new URL('../bin/coverage-floor.js', import.meta.url));
  * Runs the binary, returning its output and exit status without throwing.
  *
  * @param {string[]} args
+ * @param {string} [cwd] where to run it, for the cases that exercise the tree scan —
+ *   which reads `src/` relative to the working directory and only when no report is named
  * @returns {{ status: number, out: string }}
  */
-function run(args) {
+function run(args, cwd = process.cwd()) {
     try {
         return {
             status: 0,
-            out: execFileSync(process.execPath, [bin, ...args], { encoding: 'utf8' }),
+            out: execFileSync(process.execPath, [bin, ...args], { cwd, encoding: 'utf8' }),
         };
     } catch (error) {
         // Typed as what execFileSync actually attaches on failure, rather than as
@@ -107,5 +109,56 @@ describe('coverage-floor', () => {
 
         expect(status).toBe(1);
         expect(out).toContain('::error::coverage floor:');
+    });
+
+    describe('the default report, which is the only one checked against a tree', () => {
+        /** @type {string} */
+        let repo;
+
+        beforeEach(() => {
+            // A repository shaped like rak200/ui: a hand-written source the suite measures, and
+            // a generated tree it deliberately does not. `mkdirSync` writes both levels, and
+            // every source is stamped older than the report so the mtime half of the staleness
+            // check cannot be what decides these cases — it is the file set that must.
+            repo = mkdtempSync(join(tmpdir(), 'coverage-floor-repo-'));
+            mkdirSync(join(repo, 'src', 'icons'), { recursive: true });
+            mkdirSync(join(repo, 'coverage'));
+            writeFileSync(join(repo, 'src', 'a.ts'), '//');
+            writeFileSync(join(repo, 'src', 'icons', 'g.ts'), '//');
+            writeFileSync(join(repo, '.coverage-floor'), '95\n');
+            writeFileSync(
+                join(repo, 'coverage', 'clover.xml'),
+                '<coverage><project><metrics statements="100" coveredstatements="95"/>' +
+                    '<file name="/app/src/a.ts"/></project></coverage>',
+            );
+            utimesSync(join(repo, 'src', 'a.ts'), 1000, 1000);
+            utimesSync(join(repo, 'src', 'icons', 'g.ts'), 1000, 1000);
+            utimesSync(join(repo, 'coverage', 'clover.xml'), 2000, 2000);
+        });
+
+        afterEach(() => {
+            rmSync(repo, { recursive: true, force: true });
+        });
+
+        it('refuses a report that never measured the generated tree', () => {
+            const { status, out } = run([], repo);
+
+            expect(status).toBe(1);
+            expect(out).toContain('never measured src/icons/g.ts');
+        });
+
+        it('accepts it once that tree is dropped', () => {
+            const { status, out } = run(['--drop-prefix', join('src', 'icons')], repo);
+
+            expect(status).toBe(0);
+            expect(out).toContain('coverage 95.00% (95/100 statements), floor 95.00%');
+        });
+
+        it('exits 1 when the dropped prefix matches nothing', () => {
+            const { status, out } = run(['--drop-prefix', 'src/glyphs/'], repo);
+
+            expect(status).toBe(1);
+            expect(out).toContain('::error::coverage floor: --drop-prefix src/glyphs/ matched no');
+        });
     });
 });
