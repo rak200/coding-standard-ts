@@ -32,6 +32,34 @@ export default {
     // still skips mutants in code no test reaches, without needing per-test data.
     coverageAnalysis: 'all',
 
+    // **Vitest is held at 4 in this package's manifest, and this gate is why.** Against
+    // Vitest 5, `@stryker-mutator/vitest-runner@10` runs ZERO tests per mutant in a
+    // consumer whose suite is in browser mode, and reports every mutant as survived
+    // without an error: the floor reads 0.00 and the pipeline stays green everywhere
+    // else. Measured on rak200/ui, same file and same config — 36.85 tests per mutant
+    // and 100.00 on Vitest 4, 0.00 and 33 survived on 5.0.1.
+    //
+    // This package's own suite runs in node and scores 100.00 on Vitest 5, so the break
+    // is invisible from here. That is the trap rather than a mitigation: what this
+    // package owes a consumer is a working verb, not a green run of its own.
+    //
+    // Ruled out rather than assumed: `vitest.related: false` does not restore it, and the
+    // separator change upstream reports is present in 5.0.0 and 5.0.1 alike. There is no
+    // released runner that fixes it — 10.0.0 predates the report.
+    //
+    // **The `overrides` entry in `package.json` belongs to this decision too.** The runner
+    // declares its peer as `vitest: ">=2.0.0"`, unbounded above, so with the root at 4 npm
+    // resolves that peer to 5, pulls in its own peers, and the resolver CRASHES —
+    // `Cannot read properties of null (reading 'edgesOut')`, measured on npm 10.9.8, where
+    // the same manifest at Vitest 5 resolves in thirteen seconds. The override says the
+    // whole tree uses the Vitest this package declares, which is what the unbounded range
+    // fails to say. It goes when the pin goes.
+    //
+    // Lift both when Stryker publishes a runner that drives Vitest 5, not when Vitest 5
+    // merely looks stable: stryker-mutator/stryker-js#6210, with #6214 and #6220 open.
+    // Dependabot will keep proposing the major and this package's own pipeline will keep
+    // passing it, so refusing it is a reader's job until then.
+
     mutate: ['src/**/*.ts', '!src/**/*.d.ts', '!src/**/*.test.ts'],
 
     // The threshold is never lowered to accommodate a survivor: a survivor is killed by
