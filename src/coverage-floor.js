@@ -12,7 +12,8 @@
  * is the only place that knows about exit codes.
  */
 
-import { existsSync, readFileSync } from 'node:fs';
+import { existsSync, readFileSync, statSync } from 'node:fs';
+import { basename } from 'node:path';
 
 /**
  * The floor below which no repository may set its own floor. A per-repo `.coverage-floor`
@@ -107,14 +108,58 @@ export function parseClover(xml, label) {
 }
 
 /**
+ * The files a clover report describes, as the report spells them.
+ *
+ * A report names every file it measured, which is what makes staleness detectable with no
+ * clock involved: a source file on disk that the report never heard of proves the report
+ * describes a different tree. Paths come back verbatim — they are absolute and rooted
+ * wherever the suite ran, so the caller compares basenames rather than paths.
+ *
+ * `String(...)`, not `?? ''`, for the same reason `parseClover` uses `Number(...)`: the group
+ * cannot be absent once the regex matched, and the nullish branch written to satisfy
+ * `noUncheckedIndexedAccess` is one no input can reach — which mutation testing reports as an
+ * uncovered mutant rather than as the dead code it is.
+ *
+ * @param {string} xml raw report contents
+ * @returns {string[]}
+ */
+export function cloverFiles(xml) {
+    return [...xml.matchAll(/<file\s[^>]*\bname="([^"]*)"/g)].map((match) => String(match[1]));
+}
+
+/**
+ * The source files a report is missing, by basename.
+ *
+ * Basenames rather than paths, and the two real formats settle it. PHPUnit writes
+ * `name="/app/src/Arr.php"` — the absolute path of wherever the suite ran, which inside a
+ * container is not where the caller is looking. Istanbul writes `name="coverage-floor.js"`
+ * with the directory in a separate `path` attribute, and that attribute has been observed
+ * holding `D:\Ricardo\...` in a report a Linux CI then read. Comparing paths would refuse
+ * both. Two source files sharing a basename in
+ * different directories collapse into one — accepted, because the alternative is path
+ * arithmetic between two roots that need not share a prefix.
+ *
+ * @param {string[]} sources source files on disk
+ * @param {string[]} covered files the report describes
+ * @returns {string[]}
+ */
+export function absentFrom(sources, covered) {
+    const known = new Set(covered.map((path) => basename(path)));
+
+    return sources.filter((path) => !known.has(basename(path)));
+}
+
+/**
  * Compares a clover report against a repository's floor.
  *
- * @param {{ report: string, floorFile: string }} paths
+ * @param {{ report: string, floorFile: string, sources?: string[] }} paths `sources` are the
+ *   source files the report must describe; omitted or empty skips the staleness checks, which
+ *   is what a caller with nothing to compare against should get rather than a guess
  * @returns {{ actual: number, floor: number, total: number, covered: number, rose: boolean }}
  * @throws {FloorError} when either file is missing, unreadable as expected, or the
  *   measured coverage is below the floor or more than {@link TOLERANCE} points above it
  */
-export function evaluate({ report, floorFile }) {
+export function evaluate({ report, floorFile, sources = [] }) {
     if (!existsSync(floorFile)) {
         throw new FloorError(
             `${floorFile} is missing — the floor is per-repo state and every repository owes one`,
@@ -137,7 +182,58 @@ export function evaluate({ report, floorFile }) {
     // return a Buffer rather than throwing, and `RegExp.exec` coerces one to exactly the
     // same string — the mutant is behaviourally equivalent, and killing it would mean
     // asserting a type the compiler already guarantees.
-    const { total, covered, percent } = parseClover(readFileSync(report, 'utf8'), report);
+    const xml = readFileSync(report, 'utf8');
+    const { total, covered, percent } = parseClover(xml, report);
+
+    // A report is an artefact of the run that produced it, and nothing regenerates it: the
+    // report path is gitignored, so `coverage` on its own grades whatever is on disk.
+    // Measured on the PHP twin, whose binary is the same shape: a class added to src/ with
+    // no test at all, and the verb printed `coverage rose … raise .coverage-floor to match`
+    // and exited 0 — not merely a stale number, but advice that was the opposite of correct.
+    // CI never sees this, because the step before it writes the report, which is the bad
+    // half: the verb means one thing in the pipeline and a weaker thing on the machine where
+    // someone would use it as a pre-push check. rak200/coding-standard-php#52
+    // Stryker disable next-line ConditionalExpression,EqualityOperator: with an empty list
+    // both checks are no-ops anyway — `absentFrom([], …)` is empty and the mtime scan leaves
+    // `newest` at 0, which no report is older than. The guard is here to say that a caller
+    // with nothing to compare gets the old behaviour, not to change the outcome.
+    if (sources.length > 0) {
+        // FIRST the file set, because it accuses precisely and without a clock: a source file
+        // the report never mentions cannot be explained by a rebase or a checkout.
+        const absent = absentFrom(sources, cloverFiles(xml));
+        if (absent.length > 0) {
+            const named = absent.slice(0, 3).join(', ');
+            const rest = absent.length > 3 ? ` and ${String(absent.length - 3)} more` : '';
+            throw new FloorError(
+                `${report} describes a different tree — it never measured ${named}${rest}. Re-run the suite with coverage`,
+            );
+        }
+
+        // THEN mtime, for what the file set cannot see: lines added to a file the report
+        // already lists. A heuristic, and it says `may` rather than accusing — a rebase moves
+        // mtime without moving content.
+        let newest = 0;
+        // Stryker disable next-line StringLiteral: the seed is only read when the throw
+        // below fires, and that needs a source newer than the report — which means the loop
+        // assigned. No input reaches the message with the seed still in it.
+        let newestFile = '';
+        for (const source of sources) {
+            // `throwIfNoEntry: false` rather than a bare stat: the list is scanned a moment
+            // earlier, and a file deleted in between is a race the check should survive
+            // rather than report as ENOENT from inside a coverage gate.
+            const at = statSync(source, { throwIfNoEntry: false })?.mtimeMs ?? 0;
+            if (at > newest) {
+                newest = at;
+                newestFile = source;
+            }
+        }
+
+        if (newest > statSync(report).mtimeMs) {
+            throw new FloorError(
+                `${report} is older than ${newestFile}, so it may describe a tree that has since changed. Re-run the suite with coverage`,
+            );
+        }
+    }
 
     if (percent < floor) {
         throw new FloorError(`${percent.toFixed(2)}% is below the floor of ${floor.toFixed(2)}%`);

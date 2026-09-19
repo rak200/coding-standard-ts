@@ -1,4 +1,4 @@
-import { mkdtempSync, rmSync, writeFileSync } from 'node:fs';
+import { mkdtempSync, rmSync, utimesSync, writeFileSync } from 'node:fs';
 import { tmpdir } from 'node:os';
 import { join } from 'node:path';
 import { afterEach, beforeEach, describe, expect, it } from 'vitest';
@@ -9,6 +9,8 @@ import {
     evaluate,
     parseClover,
     parseFloor,
+    absentFrom,
+    cloverFiles,
 } from '../src/coverage-floor.js';
 
 /**
@@ -112,6 +114,18 @@ describe('parseClover', () => {
         expect(parseClover(xml, 'r.xml')).toMatchObject({ total: 200, covered: 197 });
     });
 });
+
+/** A clover report naming the files it measured, at 95 of 100 statements — inside the band. */
+/** @param {string[]} files */
+const cloverWithFiles = (...files) =>
+    `<?xml version="1.0" encoding="UTF-8"?><coverage><project>` +
+    // The project metrics come FIRST, as istanbul writes them — `parseClover` takes the
+    // document's first `<metrics>`, and a fixture in the other order would measure a file.
+    `<metrics statements="100" coveredstatements="95"/>` +
+    files
+        .map((f) => `<file name="${f}"><metrics statements="1" coveredstatements="1"/></file>`)
+        .join('') +
+    `</project></coverage>`;
 
 describe('evaluate', () => {
     /** @type {string} */
@@ -219,5 +233,135 @@ describe('evaluate', () => {
         writeFileSync(floorFile, '95\n');
 
         expect(() => evaluate({ report, floorFile })).toThrow(/is missing — run the suite/);
+    });
+
+    it('refuses a report that never measured a source file', () => {
+        // The defect this exists for: a class added to src/ with no test, and the verb
+        // printed `coverage rose` and exited 0 because the report on disk predated it.
+        writeFileSync(floorFile, '95\n');
+        writeFileSync(report, cloverWithFiles('/app/src/a.js'));
+
+        expect(() => evaluate({ report, floorFile, sources: ['src/a.js', 'src/new.js'] })).toThrow(
+            /describes a different tree — it never measured src\/new\.js/,
+        );
+    });
+
+    it('names at most three absent files and counts the rest', () => {
+        writeFileSync(floorFile, '95\n');
+        // The report measures something none of the sources name, so all four are absent.
+        writeFileSync(report, cloverWithFiles('/app/src/measured.js'));
+
+        expect(() =>
+            evaluate({ report, floorFile, sources: ['a.js', 'b.js', 'c.js', 'd.js'] }),
+        ).toThrow(/a\.js, b\.js, c\.js and 1 more/);
+    });
+
+    it('says and one more only when there is a fourth', () => {
+        // Exactly three names all three and counts nothing: `> 3` rather than `>= 3`, which
+        // would append "and 0 more".
+        writeFileSync(floorFile, '95\n');
+        writeFileSync(report, cloverWithFiles('/app/src/measured.js'));
+
+        expect(() => evaluate({ report, floorFile, sources: ['a.js', 'b.js', 'c.js'] })).toThrow(
+            /never measured a\.js, b\.js, c\.js\. Re-run/,
+        );
+    });
+
+    it('compares basenames, so a report written elsewhere still matches', () => {
+        // The report records where the suite ran — inside a container, `/app/src/a.js` — and
+        // the caller is looking at `src/a.js`. Comparing paths would refuse every report.
+        writeFileSync(floorFile, '95\n');
+        writeFileSync(report, cloverWithFiles('/app/src/a.js'));
+
+        expect(evaluate({ report, floorFile, sources: ['src/a.js'] }).floor).toBe(95);
+    });
+
+    it('refuses a report older than a source file it already measured', () => {
+        // What the file set cannot see: lines added to a file the report already lists.
+        const source = join(dir, 'a.js');
+        writeFileSync(floorFile, '95\n');
+        writeFileSync(report, cloverWithFiles('/app/a.js'));
+        writeFileSync(source, '//');
+        utimesSync(report, 1000, 1000);
+        utimesSync(source, 2000, 2000);
+
+        expect(() => evaluate({ report, floorFile, sources: [source] })).toThrow(/is older than/);
+    });
+
+    it('names the first of two sources sharing the newest time', () => {
+        // `>` rather than `>=` in the scan: with two files at the same mtime the message
+        // names the first. The message is the whole value of this check.
+        const first = join(dir, 'a.js');
+        const second = join(dir, 'b.js');
+        writeFileSync(floorFile, '95\n');
+        writeFileSync(report, cloverWithFiles('/app/a.js', '/app/b.js'));
+        writeFileSync(first, '//');
+        writeFileSync(second, '//');
+        utimesSync(report, 1000, 1000);
+        utimesSync(first, 2000, 2000);
+        utimesSync(second, 2000, 2000);
+
+        expect(() => evaluate({ report, floorFile, sources: [first, second] })).toThrow(
+            `is older than ${first},`,
+        );
+    });
+
+    it('accepts a report exactly as old as its newest source', () => {
+        // The boundary: a report written in the same moment as the last edit is the report of
+        // that edit, and `>=` would refuse the run the pipeline itself produces.
+        const source = join(dir, 'a.js');
+        writeFileSync(floorFile, '95\n');
+        writeFileSync(report, cloverWithFiles('/app/a.js'));
+        writeFileSync(source, '//');
+        utimesSync(source, 2000, 2000);
+        utimesSync(report, 2000, 2000);
+
+        expect(evaluate({ report, floorFile, sources: [source] }).floor).toBe(95);
+    });
+
+    it('skips both staleness checks when given no sources', () => {
+        writeFileSync(floorFile, '95\n');
+        writeFileSync(report, cloverWithFiles('/app/src/a.js'));
+        utimesSync(report, 1000, 1000);
+
+        expect(evaluate({ report, floorFile }).floor).toBe(95);
+    });
+});
+
+describe('cloverFiles', () => {
+    it('names every file the report measured', () => {
+        expect(cloverFiles(cloverWithFiles('/app/src/a.js', '/app/src/b.js'))).toStrictEqual([
+            '/app/src/a.js',
+            '/app/src/b.js',
+        ]);
+    });
+
+    it('matches a file element rather than anything beginning with those letters', () => {
+        // `<file\s`, not `<file`: without the space a `<filename=` attribute elsewhere in the
+        // document would be read as a measured file, and the check would then accuse a
+        // correct report of missing something.
+        expect(cloverFiles('<filename="a.js"/><file name="b.js"/>')).toStrictEqual(['b.js']);
+    });
+
+    it('takes the name attribute rather than one ending in it', () => {
+        // `\bname=`, not `name=`: `surname="…"` ends in `name=` and would win, because it
+        // comes first.
+        expect(cloverFiles('<file surname="a.js" name="b.js"/>')).toStrictEqual(['b.js']);
+    });
+
+    it('is empty when the report names no file', () => {
+        expect(cloverFiles(clover(100, 100))).toStrictEqual([]);
+    });
+});
+
+describe('absentFrom', () => {
+    it('is empty when every source is measured, by basename', () => {
+        expect(absentFrom(['src/a.js'], ['/app/src/a.js'])).toStrictEqual([]);
+    });
+
+    it('names the sources the report never measured', () => {
+        expect(absentFrom(['src/a.js', 'src/new.js'], ['/app/src/a.js'])).toStrictEqual([
+            'src/new.js',
+        ]);
     });
 });
