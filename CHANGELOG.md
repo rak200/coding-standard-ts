@@ -1,5 +1,12 @@
 # Changelog
 
+## [0.4.11](https://github.com/rak200/coding-standard-ts/compare/0.4.10...0.4.11) (2026-09-19)
+
+
+### Bug Fixes
+
+* the floor refuses a report that describes another tree ([#90](https://github.com/rak200/coding-standard-ts/issues/90)) ([a0ca9e3](https://github.com/rak200/coding-standard-ts/commit/a0ca9e3c00a83446609284921425067d37534872))
+
 ## [0.4.10](https://github.com/rak200/coding-standard-ts/compare/0.4.9...0.4.10) (2026-09-17)
 
 
