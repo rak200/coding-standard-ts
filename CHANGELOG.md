@@ -1,5 +1,12 @@
 # Changelog
 
+## [0.4.13](https://github.com/rak200/coding-standard-ts/compare/0.4.12...0.4.13) (2026-09-19)
+
+
+### Features
+
+* the floor takes --drop-prefix, for a tree excluded on purpose ([#96](https://github.com/rak200/coding-standard-ts/issues/96)) ([56509f6](https://github.com/rak200/coding-standard-ts/commit/56509f63e18b60a2ce2d4e2396c7b800ce08efb1))
+
 ## [0.4.12](https://github.com/rak200/coding-standard-ts/compare/0.4.11...0.4.12) (2026-09-19)
 
 
