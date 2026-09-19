@@ -12,8 +12,8 @@
  * is the only place that knows about exit codes.
  */
 
-import { existsSync, readFileSync, statSync } from 'node:fs';
-import { basename } from 'node:path';
+import { existsSync, readFileSync, readdirSync, statSync } from 'node:fs';
+import { basename, join } from 'node:path';
 
 /**
  * The floor below which no repository may set its own floor. A per-repo `.coverage-floor`
@@ -147,6 +147,49 @@ export function absentFrom(sources, covered) {
     const known = new Set(covered.map((path) => basename(path)));
 
     return sources.filter((path) => !known.has(basename(path)));
+}
+
+/**
+ * The source files a report is expected to describe, read off disk.
+ *
+ * This is the caller's half of {@link evaluate}'s `sources`, and it lives here rather than in
+ * `bin/` for the reason the file header gives: which files a gate grades is the gate's scope, and
+ * scope decided in `bin/` is scope no test can see.
+ *
+ * `.ts` and `.js` both, because this package configures TypeScript repositories and is itself
+ * JavaScript; a filter for one of them finds nothing in half the estate.
+ *
+ * @param {string} dir the source root; one that does not exist yields nothing, which is what a
+ *   repository with no `src/` should get rather than an ENOENT out of a coverage gate
+ * @param {string[]} drop path prefixes to leave out, compared against the paths this function
+ *   itself builds — `src/icons/` when `dir` is `src`, and never a glob
+ * @returns {string[]}
+ * @throws {FloorError} when a prefix matches nothing
+ */
+export function sourceFiles(dir, drop = []) {
+    if (!existsSync(dir)) {
+        return [];
+    }
+
+    const found = readdirSync(dir, { recursive: true, withFileTypes: true })
+        .filter((entry) => entry.isFile() && /\.(ts|js)$/.test(entry.name))
+        .map((entry) => join(entry.parentPath, entry.name));
+
+    // A prefix that matches nothing fails rather than being ignored, which is what makes the
+    // option safe to hand a consumer. The tree it names is generated, so the script that emits
+    // it can move or rename it — and the option would then exclude nothing while `package.json`
+    // still reads as though it did: an exclusion that has stopped working, indistinguishable
+    // from one that has not.
+    const unmatched = drop.filter((prefix) => !found.some((path) => path.startsWith(prefix)));
+
+    if (unmatched.length > 0) {
+        throw new FloorError(
+            `--drop-prefix ${unmatched.join(', ')} matched no file under ${dir} — ` +
+                `drop the option or fix the prefix, because it is excluding nothing`,
+        );
+    }
+
+    return found.filter((path) => !drop.some((prefix) => path.startsWith(prefix)));
 }
 
 /**

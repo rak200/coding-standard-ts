@@ -1,6 +1,6 @@
-import { mkdtempSync, rmSync, utimesSync, writeFileSync } from 'node:fs';
+import { mkdirSync, mkdtempSync, rmSync, utimesSync, writeFileSync } from 'node:fs';
 import { tmpdir } from 'node:os';
-import { join } from 'node:path';
+import { join, sep } from 'node:path';
 import { afterEach, beforeEach, describe, expect, it } from 'vitest';
 
 import {
@@ -11,6 +11,7 @@ import {
     parseFloor,
     absentFrom,
     cloverFiles,
+    sourceFiles,
 } from '../src/coverage-floor.js';
 
 /**
@@ -363,5 +364,77 @@ describe('absentFrom', () => {
         expect(absentFrom(['src/a.js', 'src/new.js'], ['/app/src/a.js'])).toStrictEqual([
             'src/new.js',
         ]);
+    });
+});
+
+describe('sourceFiles', () => {
+    /** @type {string} */
+    let dir;
+    /** @type {string} */
+    let generated;
+
+    beforeEach(() => {
+        dir = mkdtempSync(join(tmpdir(), 'coverage-floor-tree-'));
+        // The prefix a caller passes is compared against the paths this function builds, so in
+        // a fixture rooted at an absolute temporary directory the prefix is absolute too. A
+        // repository passes `src/icons/` because it scans `src`.
+        generated = join(dir, 'icons') + sep;
+        mkdirSync(join(dir, 'icons'));
+        writeFileSync(join(dir, 'a.ts'), '//');
+        writeFileSync(join(dir, 'b.js'), '//');
+        writeFileSync(join(dir, 'icons', 'g.ts'), '//');
+        // Three near misses, one per part of the extension filter: a file that is neither, a
+        // sourcemap whose name carries `.js` before its real end, and a name that merely ends
+        // in the letters. The filter moved here out of `bin/`, which nothing mutates, so this
+        // is the first run that grades it at all.
+        writeFileSync(join(dir, 'README.md'), '#');
+        writeFileSync(join(dir, 'b.js.map'), '{}');
+        writeFileSync(join(dir, 'xts'), '//');
+    });
+
+    afterEach(() => {
+        rmSync(dir, { recursive: true, force: true });
+    });
+
+    it('lists the sources under a directory, recursively and by extension', () => {
+        expect(sourceFiles(dir).toSorted()).toStrictEqual(
+            [join(dir, 'a.ts'), join(dir, 'b.js'), join(dir, 'icons', 'g.ts')].toSorted(),
+        );
+    });
+
+    it('is empty when the directory does not exist', () => {
+        // A repository with no `src/` makes no claim about a tree, and a coverage gate is the
+        // wrong place to learn that from an ENOENT.
+        expect(sourceFiles(join(dir, 'nowhere'))).toStrictEqual([]);
+    });
+
+    it('leaves out a dropped prefix', () => {
+        expect(sourceFiles(dir, [generated]).toSorted()).toStrictEqual(
+            [join(dir, 'a.ts'), join(dir, 'b.js')].toSorted(),
+        );
+    });
+
+    it('refuses a prefix that matches nothing, naming it and the directory', () => {
+        // The failure this option exists to avoid, turned back on the option itself: the tree
+        // it names is generated and can move, and a prefix that has stopped matching is dead
+        // configuration that reads exactly like live configuration.
+        expect(() => sourceFiles(dir, ['glyphs/'])).toThrow(FloorError);
+        expect(() => sourceFiles(dir, ['glyphs/'])).toThrow(
+            `--drop-prefix glyphs/ matched no file under ${dir} — drop the option or fix the ` +
+                `prefix, because it is excluding nothing`,
+        );
+    });
+
+    it('names every prefix that matched nothing, not only the first', () => {
+        expect(() => sourceFiles(dir, ['glyphs/', generated, 'vendor/'])).toThrow(
+            '--drop-prefix glyphs/, vendor/ matched no file',
+        );
+    });
+
+    it('matches the start of a path rather than any part of it', () => {
+        // `.ts` ends two of these paths and begins none, so a prefix test that had become a
+        // suffix or a substring test would accept it. Refusing it is what says the option
+        // takes a path prefix, not a pattern.
+        expect(() => sourceFiles(dir, ['.ts'])).toThrow('matched no file');
     });
 });

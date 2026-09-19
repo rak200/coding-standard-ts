@@ -30,5 +30,5 @@ that declares it, which is inside the installed package.
 and nothing else, so `src/` is unreachable by import — it ships only because `bin/` requires it at
 runtime. The binaries hold `process.argv`, stdio and the exit code; the logic lives in `src/` so
 that it can be measured, because a child process is invisible to coverage instrumentation.
-`parseFloor`, `parseClover` and `evaluate` are exported because the binaries and the tests reach
-them, not because a consumer can.
+`parseFloor`, `parseClover`, `sourceFiles`, `cloverFiles`, `absentFrom` and `evaluate` are
+exported because the binaries and the tests reach them, not because a consumer can.
