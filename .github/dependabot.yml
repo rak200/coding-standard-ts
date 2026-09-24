@@ -123,3 +123,30 @@ updates:
     ignore:
       - dependency-name: "typescript"
         update-types: ["version-update:semver-major"]
+      # The Vitest MAJOR is held as well, across the whole family; minors and patches flow.
+      #
+      # `@stryker-mutator/vitest-runner@10` cannot drive Vitest 5 in a suite that runs in
+      # browser mode: zero tests per mutant, every mutant reported survived, and no error
+      # anywhere — so a consumer's floor reads a number it never measured. The measurement
+      # is in this package's `stryker.base.js`, beside the gate it protects, together with
+      # the manifest pin and the `overrides` entry that enforce it.
+      #
+      # **What belongs here is the other half: the proposal cannot even install.**
+      # `overrides` holds `vitest` at 4, so the updater moves the siblings and leaves the
+      # core behind — and `vitest@4.1.11` declares `peerOptional @vitest/coverage-v8` at
+      # `4.1.11` exactly, so a root asking for `^5.0.1` ERESOLVEs and `npm ci` never runs.
+      # The pin that protects the floor is what makes the pull request incoherent.
+      # Measured twice, as rak200/coding-standard-ts#101 and rak200/ui#183 — unmergeable
+      # by construction, and reopening on every 5.x release until this block exists.
+      #
+      # REMOVE THIS WHEN Stryker publishes a runner that drives Vitest 5 —
+      # stryker-mutator/stryker-js#6210. **The peer range cannot answer that question**,
+      # which is why no command is printed here and one is printed above: the runner
+      # declares `vitest: ">=2.0.0"`, unbounded above, so it already admits the major it
+      # does not drive. Lift this, the manifest pin and the `overrides` entry in one pull
+      # request, and read the score on a suite in BROWSER mode — the standard's own suite
+      # runs in node and scores 100.00 on Vitest 5, which is the trap rather than a check.
+      - dependency-name: "vitest"
+        update-types: ["version-update:semver-major"]
+      - dependency-name: "@vitest/*"
+        update-types: ["version-update:semver-major"]
