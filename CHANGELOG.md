@@ -1,5 +1,12 @@
 # Changelog
 
+## [0.4.15](https://github.com/rak200/coding-standard-ts/compare/0.4.14...0.4.15) (2026-09-26)
+
+
+### Bug Fixes
+
+* **mutate:** a mutant the run could not grade fails the floor ([#109](https://github.com/rak200/coding-standard-ts/issues/109)) ([6936cd3](https://github.com/rak200/coding-standard-ts/commit/6936cd3e8d00b1d5558b951fbee87b2e822b7b41))
+
 ## [0.4.14](https://github.com/rak200/coding-standard-ts/compare/0.4.13...0.4.14) (2026-09-24)
 
 
