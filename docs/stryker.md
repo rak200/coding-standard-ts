@@ -27,10 +27,14 @@ export default { ...base };
 | `coverageAnalysis` | `all`                                       |
 | `mutate`           | `src/**/*.ts`, minus `.d.ts` and `.test.ts` |
 | `thresholds`       | `{ high: 100, low: 100, break: 100 }`       |
-| `reporters`        | `progress`, `clear-text`                    |
+| `reporters`        | `progress`, `clear-text`, `json`            |
 
 The threshold is never lowered to accommodate a survivor: a survivor is killed by strengthening the
 test, or excluded at the narrowest possible node with its reason.
+
+**`json` is not optional in a consumer that runs the verb**: `rak200-mutate` reads the report back and
+refuses a run that left a mutant ungraded, or that wrote no report at all —
+[rak200-mutate.md](rak200-mutate.md) says why.
 
 [↑ Back to top](#stryker)
 

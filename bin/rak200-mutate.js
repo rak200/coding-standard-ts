@@ -16,17 +16,22 @@
  * five minutes before the first test ran. Dropping the prefix here costs nothing to drop. It
  * is an option rather than a script so that the consumer stops carrying one.
  *
+ * **A run Stryker passes is then read back**, and refused if any mutant in it went ungraded:
+ * Stryker leaves a `RuntimeError` out of the score, so it can report 100.00 over mutants
+ * nobody scored. What counts as ungraded is ../src/ungraded.js, which says why.
+ *
  * No counterpart in tests/cli.test.js: what this file does beyond src/ is resolve Stryker's
- * bin through its own manifest, spawn it and exit with its code — the same wiring, and the
+ * bin through its own manifest, spawn it, read one file and exit — the same wiring, and the
  * same argument for not testing it, that bin/rak200-scan.js states.
  */
 
 import { spawnSync } from 'node:child_process';
-import { readFileSync } from 'node:fs';
+import { existsSync, readFileSync, rmSync } from 'node:fs';
 import { createRequire } from 'node:module';
 import { dirname, join } from 'node:path';
 
 import { baseRef, forward, strykerBin } from '../src/mutate-changed.js';
+import { report, ungraded } from '../src/ungraded.js';
 
 const require = createRequire(import.meta.url);
 
@@ -82,7 +87,30 @@ if (emptied !== '') {
     process.exit(0);
 }
 
+// Removed first, so what is read afterwards is this run's report and never the last one's: a
+// stale report with nothing ungraded in it would pass a run that wrote none.
+rmSync(report, { force: true });
+
 const { status } = spawnSync(process.execPath, [stryker(), 'run', ...args], { stdio: 'inherit' });
 
 // null is a run killed by a signal, and a killed run is not a run that passed.
-process.exit(status ?? 1);
+if (status !== 0) {
+    process.exit(status ?? 1);
+}
+
+if (!existsSync(report)) {
+    process.stderr.write(
+        `mutation: no report at ${report} — the json reporter is off or writes elsewhere, ` +
+            'and without it nothing can tell whether every mutant was graded\n',
+    );
+    process.exit(1);
+}
+
+const found = ungraded(readFileSync(report, 'utf8'), report);
+if (found.length > 0) {
+    process.stderr.write(
+        `mutation: ${String(found.length)} mutant(s) ungraded — the run errored rather than ` +
+            `failed, and the score leaves them out:\n${found.map((each) => `  ${each}\n`).join('')}`,
+    );
+    process.exit(1);
+}

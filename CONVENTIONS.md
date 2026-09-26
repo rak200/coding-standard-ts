@@ -114,6 +114,12 @@ Layer 1 sets the policy — mirrored trees, one file per unit, contract assertio
   has **no covered-only break threshold**. So TypeScript enforces the stricter _overall_ MSI,
   which a repository built to this standard from day one can hold. **The threshold is never
   lowered to accommodate a survivor.**
+- **A mutant the run could not grade fails the floor.** Stryker leaves a `RuntimeError` out of
+  the score — neither caught nor escaped — so a run can read 100.00 over mutants nobody scored.
+  `rak200-mutate` reads the JSON report back after a run Stryker passed and exits 1 on any, and on
+  a run that wrote no report; that is why `json` is among the base config's reporters. **Its reach
+  is the verb**: a bare `stryker run` checks nothing, and that is this package's own `mutation`
+  verb.
 - **`coverageAnalysis` is `all`, never `perTest`.** Per-test coverage needs instrumentation Vitest
   does not provide in browser mode, and Stryker's failure mode is not an error: every mutant
   reports zero covering tests and times out, so they count as _killed_ and the score comes out

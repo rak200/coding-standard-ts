@@ -71,6 +71,16 @@ export default {
     // repository built to this standard from day one can hold.
     thresholds: { high: 100, low: 100, break: 100 },
 
-    reporters: ['progress', 'clear-text'],
+    // `json` for two readers, and the first is a gate. `rak200-mutate` reads the report back
+    // after a run Stryker passed and refuses one that left a mutant ungraded: a `RuntimeError`
+    // is out of the score entirely, so without this the floor can read 100.00 over mutants
+    // nobody scored. The second is whoever has to find out which: `clear-text` prints how many
+    // mutants errored in each file and not which ones, so without the report the answer lasts
+    // only as long as the terminal that printed the count.
+    //
+    // A consumer that overrides `reporters` has to keep it, and `--reporters` on the command
+    // line replaces this list rather than adding to it: the verb refuses a run with no report
+    // at all, rather than reading its absence as a clean one.
+    reporters: ['progress', 'clear-text', 'json'],
     tempDirName: '.stryker-tmp',
 };
