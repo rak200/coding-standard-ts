@@ -73,7 +73,9 @@ range, `--mutate src/tooltip.ts:619-619`. The suite reproduces; the machine does
 the page reaches the runner as a plain serialized object rather than an `Error`, and Stryker's
 `errorToString` prints anything that is not an `Error` as `[object Object]` — measured, as the whole
 of the reason a browser-mode suite error came back with. The line still names the mutant, which is
-the part the next step needs.
+the part the next step needs. Reported as
+[stryker-mutator/stryker-js#6233](https://github.com/stryker-mutator/stryker-js/issues/6233); once a
+runner release fixes it, the reason becomes the error's own message and this paragraph goes.
 
 `CompileError` is not refused: the mutated program does not typecheck, which is a verdict rather
 than the absence of one. It arises only under a checker plugin, which this standard does not
