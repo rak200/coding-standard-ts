@@ -3,16 +3,16 @@
 What this package exposes to a repository that installs it. For installation and an overview, see
 the [top-level README](../README.md); for the rules themselves, [CONVENTIONS.md](../CONVENTIONS.md).
 
-| Unit             | Doc                                    | What it covers                                                 |
-| ---------------- | -------------------------------------- | -------------------------------------------------------------- |
-| `coverage-floor` | [coverage-floor.md](coverage-floor.md) | the `coverage` verb                                            |
-| `rak200-scan`    | [rak200-scan.md](rak200-scan.md)       | the `scan` verb                                                |
-| `rak200-mutate`  | [rak200-mutate.md](rak200-mutate.md)   | the `mutation` verb                                            |
-| `./eslint`       | [eslint.md](eslint.md)                 | type-aware linting, and why ESLint rather than a faster linter |
-| `./tsconfig`     | [tsconfig.md](tsconfig.md)             | the compiler settings, the one config shared as JSON           |
-| `./prettier`     | [prettier.md](prettier.md)             | the formatter, and where indentation comes from                |
-| `./stryker`      | [stryker.md](stryker.md)               | the mutation floor                                             |
-| `./vitest`       | [vitest.md](vitest.md)                 | the suite and its coverage reporter                            |
+| Unit             | Doc                                    | What it covers                                                      |
+| ---------------- | -------------------------------------- | ------------------------------------------------------------------- |
+| `coverage-floor` | [coverage-floor.md](coverage-floor.md) | the `coverage` verb                                                 |
+| `rak200-scan`    | [rak200-scan.md](rak200-scan.md)       | the `scan` verb                                                     |
+| `rak200-mutate`  | [rak200-mutate.md](rak200-mutate.md)   | the `mutation` verb                                                 |
+| `./eslint`       | [eslint.md](eslint.md)                 | type-aware linting, the documentation rule it ships, and why ESLint |
+| `./tsconfig`     | [tsconfig.md](tsconfig.md)             | the compiler settings, the one config shared as JSON                |
+| `./prettier`     | [prettier.md](prettier.md)             | the formatter, and where indentation comes from                     |
+| `./stryker`      | [stryker.md](stryker.md)               | the mutation floor                                                  |
+| `./vitest`       | [vitest.md](vitest.md)                 | the suite and its coverage reporter                                 |
 
 ## Two shapes, and the rule that separates them
 
