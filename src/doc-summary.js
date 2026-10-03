@@ -153,15 +153,18 @@ function isPublic(member) {
 }
 
 /**
- * The rule. Registered by `eslint.base.js` as `rak200/doc-summary`, under `src/`.
+ * The rule. Registered by `eslint.base.js` as `@rak200/coding-standard-ts/doc-summary`, and
+ * turned on under `src/`.
  *
  * @type {TSESLint.RuleModule<'missing'>}
  */
 export default {
-    // Stryker disable next-line ArrayDeclaration: ESLint reads `meta.defaultOptions`, never this; the type asks for it.
+    // ESLint reads `meta.defaultOptions`, never this one; the type asks for it.
+    // Stryker disable next-line ArrayDeclaration: nothing reads it, so no mutant shows
     defaultOptions: [],
     meta: {
-        // Stryker disable next-line StringLiteral: ESLint reads `type` only to filter fixes, and this rule has none.
+        // ESLint reads `type` only to filter fixes, and this rule has none.
+        // Stryker disable next-line StringLiteral: nothing reads it, so no mutant shows
         type: 'suggestion',
         messages: { missing: '{{name}} has no TSDoc summary.' },
         schema: [],

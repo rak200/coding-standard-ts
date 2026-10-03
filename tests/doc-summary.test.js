@@ -29,7 +29,7 @@ describe('the configuration a consumer imports', () => {
             const config = await eslint.calculateConfigForFile(file);
 
             return /** @type {{ rules: Record<string, unknown> }} */ (config).rules[
-                'rak200/doc-summary'
+                '@rak200/coding-standard-ts/doc-summary'
             ];
         };
 
@@ -141,7 +141,7 @@ new RuleTester({ languageOptions: { parser: tseslint.parser } }).run(
                 '    private secret = 1;',
                 '    protected hook(): void {}',
                 '    /** Builds it. */',
-                '    constructor(private readonly a: number, protected b: string, plain: number) {}',
+                '    constructor(private readonly a: number, protected b: string, c: number) {}',
                 '}',
             ].join('\n'),
             [

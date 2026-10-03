@@ -85,14 +85,14 @@ two configs and both were unusable in the first repository that imported them.
 
 ## What it fixes in place
 
-| Config               | The decision it carries                                                                                                                                                        |
-| -------------------- | ------------------------------------------------------------------------------------------------------------------------------------------------------------------------------ |
-| `eslint.config.js`   | `strictTypeChecked` + `stylisticTypeChecked`, then `eslint-config-prettier`; and `rak200/doc-summary`, a TSDoc summary on every exported symbol and public member under `src/` |
-| `tsconfig.base.json` | `strict`, plus the eight options `strict` does not include                                                                                                                     |
-| `prettier.config.js` | 100 columns, single quotes, trailing commas, LF                                                                                                                                |
-| `stryker.config.js`  | `thresholds.break: 100`; a survivor is killed, never accommodated                                                                                                              |
-| `vitest.base.js`     | v8 coverage reported as clover, which the floor binary reads                                                                                                                   |
-| `bin/coverage-floor` | the `coverage` verb: a clover report against the repo's `.coverage-floor`                                                                                                      |
+| Config               | The decision it carries                                                                                                                                                                            |
+| -------------------- | -------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------- |
+| `eslint.config.js`   | `strictTypeChecked` + `stylisticTypeChecked`, then `eslint-config-prettier`; and `@rak200/coding-standard-ts/doc-summary`, a TSDoc summary on every exported symbol and public member under `src/` |
+| `tsconfig.base.json` | `strict`, plus the eight options `strict` does not include                                                                                                                                         |
+| `prettier.config.js` | 100 columns, single quotes, trailing commas, LF                                                                                                                                                    |
+| `stryker.config.js`  | `thresholds.break: 100`; a survivor is killed, never accommodated                                                                                                                                  |
+| `vitest.base.js`     | v8 coverage reported as clover, which the floor binary reads                                                                                                                                       |
+| `bin/coverage-floor` | the `coverage` verb: a clover report against the repo's `.coverage-floor`                                                                                                                          |
 
 **TypeScript is pinned at 6.0 and that is a ceiling, not a floor.** `typescript-eslint` accepts
 `>=4.8.4 <6.1.0`, so TypeScript 7 — released and stable — cannot be adopted without giving up

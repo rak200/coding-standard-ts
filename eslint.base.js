@@ -47,13 +47,14 @@ export default tseslint.config(
     // Every exported symbol, and every public member of one, carries a TSDoc summary: the
     // documentation a package carries inside itself, kept in the `.d.ts` the compiler emits
     // and shown by a consumer's editor over a call. Under `src/`, and not in a test written
-    // beside the code. The plugin is registered for every file, so a repository whose code
-    // lives elsewhere turns `rak200/doc-summary` on for that directory in a block of its own.
-    { plugins: { rak200: { rules: { 'doc-summary': docSummary } } } },
+    // beside the code. The plugin is registered for every file, under the package's own
+    // name, so a repository whose code lives elsewhere turns the rule on for that directory
+    // in a block of its own.
+    { plugins: { '@rak200/coding-standard-ts': { rules: { 'doc-summary': docSummary } } } },
     {
         files: ['src/**'],
         ignores: ['src/**/*.test.*', 'src/**/*.spec.*'],
-        rules: { 'rak200/doc-summary': 'error' },
+        rules: { '@rak200/coding-standard-ts/doc-summary': 'error' },
     },
     // Last, always: turns off every rule that would argue with the formatter. Two tools
     // disagreeing about the same line is a fight nobody wins.

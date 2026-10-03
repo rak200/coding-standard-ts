@@ -64,8 +64,9 @@ both resolve against the consumer's `eslint.config.js`, never against this packa
 
 ## The rule it ships
 
-`rak200/doc-summary` — every exported symbol, and every public member of one, carries a TSDoc
-summary. On under `src/`, and not in a test written beside the code there.
+`@rak200/coding-standard-ts/doc-summary` — every exported symbol, and every public member of one,
+carries a TSDoc summary. On under `src/`, and not in a test written beside the code there. The
+namespace is the package's own name, which is where the rule comes from.
 
 ```ts
 export function run(): void {} // run has no TSDoc summary.
@@ -101,7 +102,10 @@ The plugin is registered for every file, so a repository whose code lives outsid
 rule on there in a block of its own:
 
 ```js
-export default [...base, { files: ['lib/**'], rules: { 'rak200/doc-summary': 'error' } }];
+export default [
+  ...base,
+  { files: ['lib/**'], rules: { '@rak200/coding-standard-ts/doc-summary': 'error' } },
+];
 ```
 
 Why the rule exists is in [CONVENTIONS.md](../CONVENTIONS.md), §_Documentation form_.
