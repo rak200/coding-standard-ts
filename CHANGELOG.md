@@ -1,5 +1,16 @@
 # Changelog
 
+## [0.5.0](https://github.com/rak200/coding-standard-ts/compare/0.4.15...0.5.0) (2026-10-03)
+
+
+### ⚠ BREAKING CHANGES
+
+* ESLint requires a TSDoc summary on every public member ([#116](https://github.com/rak200/coding-standard-ts/issues/116))
+
+### Features
+
+* ESLint requires a TSDoc summary on every public member ([#116](https://github.com/rak200/coding-standard-ts/issues/116)) ([3b0498e](https://github.com/rak200/coding-standard-ts/commit/3b0498ebf3544bca7b7007fb0b87e5e22f120524))
+
 ## [0.4.15](https://github.com/rak200/coding-standard-ts/compare/0.4.14...0.4.15) (2026-09-26)
 
 
