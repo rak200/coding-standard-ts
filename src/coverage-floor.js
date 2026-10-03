@@ -30,7 +30,11 @@ export const TOLERANCE = 1;
 
 /** A condition the caller should report as a coverage-floor failure. */
 export class FloorError extends Error {
-    /** @param {string} message */
+    /**
+     * A failure the caller reports as it is, named so it can be told from any other error.
+     *
+     * @param {string} message
+     */
     constructor(message) {
         super(message);
         this.name = 'FloorError';
