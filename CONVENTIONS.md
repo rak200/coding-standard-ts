@@ -135,9 +135,23 @@ Layer 1 sets the policy — mirrored trees, one file per unit, contract assertio
 
 Layer 1 mandates that documentation exists; this is what it looks like in TypeScript.
 
-- Every exported symbol carries a TSDoc summary. `@param` / `@returns` / `@throws` are added
-  **only when they convey something beyond the type signature** — units, semantics, edge-case
-  behaviour, the condition of a throw. The signature is already published; repeating it is noise.
+- Every exported symbol, and every public member of one, carries a TSDoc summary. A public member
+  is a method, a constructor, a property, an accessor, a constructor parameter that declares a
+  property, an enum member, and a named member of an exported interface or object type. An
+  override is a member like any other, and `{@inheritDoc}` is how it says that it adds nothing to
+  what it overrides. `@param` / `@returns` / `@throws` are added **only when they convey something
+  beyond the type signature** — units, semantics, edge-case behaviour, the condition of a throw.
+  The signature is already published; repeating it is noise.
+
+  **ESLint enforces it**, as `@rak200/coding-standard-ts/doc-summary`: a rule this package
+  ships, which `eslint.base.js` turns on under `src/`, so every repository that imports the base
+  config runs it from 0.5.0. A doc comment on exported code is the documentation that travels
+  with it: the compiler keeps it in the `.d.ts`, and a consumer's editor shows it over a call.
+  The rule reads the declaration the `export` keyword is written on; one exported later by name,
+  in an `export { a }` list or as `export default a`, is not followed. It can ask that a summary
+  is there — the doc comment's first text is prose, not a tag — never that it says the right
+  thing.
+
 - **Reference pages** live in `docs/`, sized by unit: an index (`docs/README.md`) and one page per
   unit that a reader would look up on its own. CI asserts that every exported symbol appears
   somewhere in `docs/`.
