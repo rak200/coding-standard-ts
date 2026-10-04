@@ -49,4 +49,9 @@ silently loses every decision here. The first repository to import this standard
 entire source with Prettier's defaults, double quotes and all, while `lint` reported everything
 clean.
 
+Nothing checks for one. In a repository already formatted to this standard a replacement is loud —
+`{ "printWidth": 120 }` turned `lint` red on 2137 files of rak200/ui — and the reformat that makes
+it pass is a diff nobody misses. It stays silent where the code already matches it, which is the
+case above, and for a verbatim copy of these options, which passes and stops following this file.
+
 [↑ Back to top](#prettier)

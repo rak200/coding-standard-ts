@@ -32,6 +32,11 @@ export default { ...base };
 The threshold is never lowered to accommodate a survivor: a survivor is killed by strengthening the
 test, or excluded at the narrowest possible node with its reason.
 
+**The pipeline reads the floor the way Stryker does.** It imports `stryker.config.js` and compares
+the resolved `thresholds.break` with this file's, so a config that leaves this one out — and runs
+on Stryker's default, `break: null`, which never fails — is refused, and so is a repository with no
+config at all. From `js.yml` 2.15.0.
+
 **`json` is not optional in a consumer that runs the verb**: `rak200-mutate` reads the report back and
 refuses a run that left a mutant ungraded, or that wrote no report at all —
 [rak200-mutate.md](rak200-mutate.md) says why.

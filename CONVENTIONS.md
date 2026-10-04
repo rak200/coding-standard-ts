@@ -84,10 +84,26 @@ PHPStan at `level: max`, and it is the reason the linter is ESLint: matching tha
 that read the type checker, which Biome and oxlint do not have. `eslint-config-prettier` comes
 last and turns off everything that would argue with the formatter.
 
+**The pipeline compares the rules as ESLint resolves them.** In every tracked script, each rule
+the base turns on must resolve in the repository's own config to the same severity and options.
+A repository may add rules and ignore files; it may not turn one of these off or change it. A
+config that leaves the base out was the case that mattered: it passed `eslint .` and every check
+that read the config as text, which reported this standard's tier as the one that runs. The step
+is _A repository may not weaken a mandated value_, on the floor leg of every repository calling
+`js.yml` 2.16.0 or later.
+
 The compiler is configured past `strict`, because `strict` is a floor and not a ceiling:
 `noUncheckedIndexedAccess`, `exactOptionalPropertyTypes`, `noPropertyAccessFromIndexSignature`,
 `noImplicitOverride`, `noImplicitReturns`, `noFallthroughCasesInSwitch`, `noUnusedLocals`,
 `noUnusedParameters`. Each of these turns a silent wrong answer into a compile error.
+
+**The pipeline compares every option the base sets**, as `tsc --showConfig` resolves it in each
+`tsconfig*.json` at the root, so one that drops `extends` loses them and fails. Turning one off is
+a compile that still passes, and the type-aware lint notices only where the code depends on the
+option — `noUncheckedIndexedAccess: false` turned 27 guards in rak200/ui into
+`no-unnecessary-condition` errors — so the comparison is what holds all of them. `declaration`,
+`declarationMap` and `sourceMap` are left to the repository, because they decide what a build
+writes rather than what the compiler accepts. From `js.yml` 2.15.0.
 
 **Never `any`, and never a bare `@ts-expect-error`.** A genuinely unknown value is `unknown` and
 gets narrowed. Where a suppression is unavoidable it carries a description on the same line, and
@@ -99,9 +115,16 @@ fixed — a suppression that outlives its cause is worse than the error it hid.
 **Prettier**, and no arguments: 100 columns, single quotes, trailing commas everywhere, LF.
 A repository gets them by re-exporting `@rak200/coding-standard-ts/prettier` from its own
 `prettier.config.js` — Prettier's JSON config has no `extends`, so a `.prettierrc.json` in a
-consumer replaces this standard instead of extending it, silently and while `lint` stays green. Style
-is not a place to spend judgement, and every rule that could disagree with the formatter is turned
-off in the ESLint config rather than fought.
+consumer replaces this standard instead of extending it. Style is not a place to spend judgement,
+and every rule that could disagree with the formatter is turned off in the ESLint config rather
+than fought.
+
+**Nothing checks for a replacement, and that is a judgement about cost.** In a repository already
+formatted to this standard one is loud: `lint` reds on every file it reformats until a wholesale
+`fix`, and that reformat is a diff no reviewer misses. It is silent only where the code already
+matches it — a repository formatted under the replacement from the start, which is how the first
+consumer ran Prettier's defaults with `lint` clean, or a verbatim copy of these options, which
+passes everything and stops following this standard from then on.
 
 **Indentation is four spaces, not the two a JavaScript developer expects**, and that is deliberate
 rather than an oversight: Prettier reads the repository's `.editorconfig`, which is a Layer 1 seed
@@ -128,6 +151,12 @@ Layer 1 sets the policy — mirrored trees, one file per unit, contract assertio
   has **no covered-only break threshold**. So TypeScript enforces the stricter _overall_ MSI,
   which a repository built to this standard from day one can hold. **The threshold is never
   lowered to accommodate a survivor.**
+
+  **The pipeline compares the floor as Stryker resolves it**, by importing `stryker.config.js`
+  the way Stryker loads it. A config that leaves the base out restates nothing and runs on
+  Stryker's own default, `thresholds.break: null`, which never fails; a missing config fails for
+  the same reason. From `js.yml` 2.15.0, on the floor leg.
+
 - **A mutant the run could not grade fails the floor.** Stryker leaves a `RuntimeError` out of
   the score — neither caught nor escaped — so a run can read 100.00 over mutants nobody scored.
   `rak200-mutate` reads the JSON report back after a run Stryker passed and exits 1 on any, and on
