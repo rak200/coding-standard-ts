@@ -42,7 +42,7 @@
     "validate": "publint --strict",
     "lint": "prettier --check .",
     "fix": "prettier --write . && eslint --fix .",
-    "analyse": "eslint .",
+    "analyse": "tsc --noEmit && eslint .",
     "test": "vitest run",
     "coverage": "node bin/coverage-floor.js",
     "scan": "node bin/rak200-scan.js",
