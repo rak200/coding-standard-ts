@@ -1,5 +1,12 @@
 # Changelog
 
+## [0.5.1](https://github.com/rak200/coding-standard-ts/compare/0.5.0...0.5.1) (2026-10-04)
+
+
+### Features
+
+* the standard brings the browser provider ([#124](https://github.com/rak200/coding-standard-ts/issues/124)) ([b18eeac](https://github.com/rak200/coding-standard-ts/commit/b18eeac1b95b9f7d9143831fb3db9d97167aa098))
+
 ## [0.5.0](https://github.com/rak200/coding-standard-ts/compare/0.4.15...0.5.0) (2026-10-03)
 
 
