@@ -24,7 +24,9 @@ Coverage only — `provider: 'v8'`, `reporter: ['text', 'clover']`, `reportsDire
 including `src/**/*.ts` and excluding `.d.ts` and `.test.ts`.
 
 Nothing else. What to run is the consumer's business, which is why this is merged rather than
-spread.
+spread. That includes browser mode: a repository with components turns it on in its own config, as
+[CONVENTIONS.md](../CONVENTIONS.md) §_Testing_ requires, and that section says why nothing checks
+it.
 
 [↑ Back to top](#vitest)
 
