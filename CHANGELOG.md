@@ -1,5 +1,12 @@
 # Changelog
 
+## [0.5.2](https://github.com/rak200/coding-standard-ts/compare/0.5.1...0.5.2) (2026-10-04)
+
+
+### Performance Improvements
+
+* a mutant runs its own test file first, and stops at its first failure again ([#131](https://github.com/rak200/coding-standard-ts/issues/131)) ([0a5c6cc](https://github.com/rak200/coding-standard-ts/commit/0a5c6ccd53b3471d16c48d8f387a4098e387ef52))
+
 ## [0.5.1](https://github.com/rak200/coding-standard-ts/compare/0.5.0...0.5.1) (2026-10-04)
 
 
