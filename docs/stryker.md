@@ -13,7 +13,7 @@ export default { ...base };
 ## Contents
 
 - [What it sets](#what-it-sets)
-- [`coverageAnalysis: 'all'`, not `perTest`](#coverageanalysis-all-not-pertest)
+- [Why `coverageAnalysis` is `all`](#why-coverageanalysis-is-all)
 - [Why a module and not JSON](#why-a-module-and-not-json)
 - [The asymmetry with the PHP side](#the-asymmetry-with-the-php-side)
 
@@ -40,12 +40,19 @@ refuses a run that left a mutant ungraded, or that wrote no report at all —
 
 ---
 
-## `coverageAnalysis: 'all'`, not `perTest`
+## Why `coverageAnalysis` is `all`
 
-Per-test coverage needs instrumentation Vitest does not provide in browser mode, so every mutant
-reports zero covering tests and every mutant times out — measured: 24 of 25 "killed" by timeout,
-none by an assertion, and a mutation score that means nothing. `all` still skips mutants in code no
-test reaches, without needing per-test data.
+With this runner, `all` and `perTest` are the same run. `@stryker-mutator/vitest-runner` never reads
+the option and collects coverage per test whatever it says, and Stryker then runs, for each mutant,
+only the tests that cover it — the whole suite for a static one. Measured on rak200/ui: two files,
+45 mutants, and under both values every mutant got the same verdict and the same covering tests,
+each one killed by an assertion.
+
+`off` is the one value that changes the run, and only its cost: every mutant runs the whole suite.
+
+`all` is set rather than left to Stryker's default of `perTest` because, by Stryker's own
+definition, it asks a runner only whether a mutant is covered, not by which test. If a runner ever
+starts to honour the option, the standard is already on the value that asks less of it.
 
 [↑ Back to top](#stryker)
 

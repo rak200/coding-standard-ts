@@ -120,10 +120,6 @@ Layer 1 sets the policy — mirrored trees, one file per unit, contract assertio
   a run that wrote no report; that is why `json` is among the base config's reporters. **Its reach
   is the verb**: a bare `stryker run` checks nothing, and that is this package's own `mutation`
   verb.
-- **`coverageAnalysis` is `all`, never `perTest`.** Per-test coverage needs instrumentation Vitest
-  does not provide in browser mode, and Stryker's failure mode is not an error: every mutant
-  reports zero covering tests and times out, so they count as _killed_ and the score comes out
-  high and meaningless. `all` still skips mutants in code no test reaches.
 - **A mutant on a module-level side effect cannot be killed, and that is a third category.**
   Stryker switches mutants at runtime inside a warm process, so a statement that runs once at
   import — `customElements.define(...)` above all — has already run with the original value by the
