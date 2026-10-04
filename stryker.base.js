@@ -25,11 +25,16 @@
 export default {
     testRunner: 'vitest',
 
-    // NOT `perTest`, and this is the one that costs a day to find. Per-test coverage
-    // needs instrumentation that Vitest does not provide in browser mode, so every
-    // mutant reports zero covering tests and every mutant times out: 24 of 25 "killed"
-    // by timeout, none by an assertion, and a mutation score that means nothing. `all`
-    // still skips mutants in code no test reaches, without needing per-test data.
+    // `all` and `perTest` are the same run with this runner. The vitest runner never
+    // reads the option: it collects coverage per test whatever the setting, and Stryker
+    // then runs, for each mutant, only the tests that cover it — the whole suite for a
+    // static one. Measured on rak200/ui, mutant by mutant: the same verdict and the same
+    // covering tests under both. `off` is the one value that changes the run, and only
+    // its cost: every mutant runs the whole suite.
+    //
+    // `all` rather than Stryker's default of `perTest`, because by Stryker's own
+    // definition it asks a runner only whether a mutant is covered, not by which test —
+    // so a runner that one day honours the option starts from the setting that asks less.
     coverageAnalysis: 'all',
 
     // **Vitest is held at 4 in this package's manifest, and this gate is why.** Against
