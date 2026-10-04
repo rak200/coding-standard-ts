@@ -148,14 +148,18 @@ export function forward(args, from, read, drop = () => false) {
     let emptied = '';
     let announced = '';
     for (let i = 0; i < args.length; i += 1) {
-        const arg = args[i];
+        // Indexed inside the loop's bound, and `args[i + 1]` below only under `separate`, which
+        // checks its own: neither is undefined, and the casts add nothing at run time.
+        const arg = /** @type {string} */ (args[i]);
         const separate = (arg === '--mutate' || arg === '-m') && i + 1 < args.length;
         const joined = arg.startsWith('--mutate=');
         if (!separate && !joined) {
             out.push(arg);
             continue;
         }
-        const value = separate ? args[i + 1] : arg.slice('--mutate='.length);
+        const value = separate
+            ? /** @type {string} */ (args[i + 1])
+            : arg.slice('--mutate='.length);
         if (separate) {
             i += 1;
         }

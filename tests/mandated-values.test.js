@@ -37,7 +37,8 @@ const matched = (pattern, file) => {
         throw new Error(`${pattern.source} matches nothing in ${file}`);
     }
 
-    return found[1];
+    // Every pattern below has exactly one group, and it took part in the match.
+    return /** @type {string} */ (found[1]);
 };
 
 describe('the conventions and the config state the same numbers', () => {

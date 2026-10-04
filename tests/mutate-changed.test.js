@@ -107,6 +107,7 @@ describe('expand', () => {
     });
 
     it('forwards a glob untouched and expands the concrete path beside it', () => {
+        /** @param {string} file */
         const read = (file) => (file === 'src/a.ts' ? hunks('@@ -1 +3,2') : null);
         expect(expand(['src/**/*.ts', 'src/a.ts'], 'origin/master', read)).toStrictEqual([
             'src/**/*.ts',
