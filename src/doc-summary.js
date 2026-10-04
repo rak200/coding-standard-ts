@@ -158,6 +158,9 @@ function isPublic(member) {
  *
  * @type {TSESLint.RuleModule<'missing'>}
  */
+// As `{}`, the rule fails its test file while it is collected, before any test exists, and the
+// vitest runner records a file that never collected as no test run rather than as a kill.
+// Stryker disable next-line ObjectLiteral: outside the vitest runner's reach, as described above
 export default {
     // ESLint reads `meta.defaultOptions`, never this one; the type asks for it.
     // Stryker disable next-line ArrayDeclaration: nothing reads it, so no mutant shows
