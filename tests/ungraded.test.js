@@ -15,7 +15,7 @@ import { report, ungraded } from '../src/ungraded.js';
 /**
  * One mutant in the report's own shape, `Killed` unless told otherwise.
  *
- * @param {Partial<{ status: string, statusReason: string, mutatorName: string, line: number, column: number }>} [overrides]
+ * @param {Partial<{ status: string, statusReason: string | undefined, mutatorName: string, line: number, column: number }>} [overrides]
  */
 const mutant = ({
     status = 'Killed',

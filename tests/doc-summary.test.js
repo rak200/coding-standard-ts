@@ -21,7 +21,12 @@ describe('the configuration a consumer imports', () => {
     it('turns the rule on under src/, and nowhere else', async () => {
         // A rule that is tested and never turned on is enforced by nothing; one turned on over
         // the wrong files is enforced over nothing, and stays green either way.
-        const eslint = new ESLint({ overrideConfigFile: true, overrideConfig: base });
+        // typescript-eslint types the array as its own `ConfigArray`; ESLint takes the same value
+        // as `Linter.Config[]`, and the two declarations do not meet.
+        const config = /** @type {import('eslint').Linter.Config[]} */ (
+            /** @type {unknown} */ (base)
+        );
+        const eslint = new ESLint({ overrideConfigFile: true, overrideConfig: config });
 
         /** @param {string} file */
         const severity = async (file) => {

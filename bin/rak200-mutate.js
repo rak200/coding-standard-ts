@@ -63,13 +63,15 @@ const argv = process.argv.slice(2);
 const prefixes = [];
 /** @type {string[]} */
 const rest = [];
+// Both reads are indexed inside a bound the loop has just checked, so neither is undefined; the
+// casts say what the bound proves, and add nothing at run time.
 for (let i = 0; i < argv.length; i += 1) {
     if (argv[i] === '--drop-prefix' && i + 1 < argv.length) {
-        prefixes.push(argv[i + 1]);
+        prefixes.push(/** @type {string} */ (argv[i + 1]));
         i += 1;
         continue;
     }
-    rest.push(argv[i]);
+    rest.push(/** @type {string} */ (argv[i]));
 }
 
 const { args, emptied, announced } = forward(rest, baseRef(process.env), read, (pattern) =>

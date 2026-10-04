@@ -29,13 +29,15 @@ const argv = process.argv.slice(2);
 const drop = [];
 /** @type {string[]} */
 const positional = [];
+// Both reads are indexed inside a bound the loop has just checked, so neither is undefined; the
+// casts say what the bound proves, and add nothing at run time.
 for (let i = 0; i < argv.length; i += 1) {
     if (argv[i] === '--drop-prefix' && i + 1 < argv.length) {
-        drop.push(argv[i + 1]);
+        drop.push(/** @type {string} */ (argv[i + 1]));
         i += 1;
         continue;
     }
-    positional.push(argv[i]);
+    positional.push(/** @type {string} */ (argv[i]));
 }
 
 const report = positional[0] ?? 'coverage/clover.xml';
