@@ -146,6 +146,14 @@ Layer 1 sets the policy — mirrored trees, one file per unit, contract assertio
   emulator. A custom element that only ever runs under jsdom is a component nobody has tested:
   shadow DOM, focus, layout and event ordering are exactly where the emulator and the browser
   disagree, and exactly what a UI library exists to get right.
+
+  **Nothing checks the configuration, and the suite is what holds the rule.** A test that imports
+  `vitest/browser` — the page and user-event APIs — refuses to load outside Browser Mode, so a
+  repository whose tests use it cannot move to an emulator without rewriting them: measured on
+  rak200/ui, with browser mode off and happy-dom installed, 15 of its 17 test files failed. The
+  two that passed import no browser-only API, and that is the limit — a suite written without one
+  could move silently, while the pipeline went on installing a browser nothing used.
+
 - **Mutation: `thresholds.break: 100`.** The asymmetry with the PHP side is real and stated
   rather than smoothed: Infection has `minCoveredMsi`, a floor over covered code only, and Stryker
   has **no covered-only break threshold**. So TypeScript enforces the stricter _overall_ MSI,
