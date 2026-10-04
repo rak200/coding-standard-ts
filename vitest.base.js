@@ -9,8 +9,15 @@
 
 import { defineConfig } from 'vitest/config';
 
+import { MirrorFirstSequencer } from './src/sequencer.js';
+
 export default defineConfig({
     test: {
+        // The order a run scoped to some source files takes — which is every mutant's run: the
+        // test file that mirrors the mutated one first, and a failure that stops the run on
+        // every run rather than on the first. `src/sequencer.js` carries the measurement; a run
+        // with no scope is sorted as Vitest sorts it.
+        sequence: { sequencer: MirrorFirstSequencer },
         coverage: {
             provider: 'v8',
             reporter: ['text', 'clover'],

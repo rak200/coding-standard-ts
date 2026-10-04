@@ -49,7 +49,8 @@ refuses a run that left a mutant ungraded, or that wrote no report at all —
 
 With this runner, `all` and `perTest` are the same run. `@stryker-mutator/vitest-runner` never reads
 the option and collects coverage per test whatever it says, and Stryker then runs, for each mutant,
-only the tests that cover it — the whole suite for a static one. Measured on rak200/ui: two files,
+only the tests that cover it — every related file for a static one, which is why
+[the order a mutant's run takes](vitest.md#the-order-a-mutants-run-takes) matters. Measured on rak200/ui: two files,
 45 mutants, and under both values every mutant got the same verdict and the same covering tests,
 each one killed by an assertion.
 

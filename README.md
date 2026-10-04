@@ -91,7 +91,7 @@ two configs and both were unusable in the first repository that imported them.
 | `tsconfig.base.json` | `strict`, plus the eight options `strict` does not include                                                                                                                                         |
 | `prettier.config.js` | 100 columns, single quotes, trailing commas, LF                                                                                                                                                    |
 | `stryker.config.js`  | `thresholds.break: 100`; a survivor is killed, never accommodated                                                                                                                                  |
-| `vitest.base.js`     | v8 coverage reported as clover, which the floor binary reads                                                                                                                                       |
+| `vitest.base.js`     | v8 coverage reported as clover, which the floor binary reads; and a mutant's run that starts with the mutated file's mirror and stops at its first failure                                         |
 | `bin/coverage-floor` | the `coverage` verb: a clover report against the repo's `.coverage-floor`                                                                                                                          |
 
 **TypeScript is pinned at 6.0 and that is a ceiling, not a floor.** `typescript-eslint` accepts
