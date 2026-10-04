@@ -36,13 +36,23 @@ Import both from a project's `CLAUDE.md`:
   **No dual builds is checked by nothing.** A second format is a deliberate change to the
   manifest and a second build, which a reviewer sees, not a line that slips in.
 
-- **One dev dependency**: this package. It brings the compiler, the linter, the formatter, the
-  test runner, the browser driver, the mutation engine and the coverage-floor binary with it, so a
-  repository's `devDependencies` does not drift from its siblings'. Because npm does not install a
-  dependency's dev dependencies, the toolchain is declared under `dependencies` here — that is not
-  a mistake, it is what makes one install enough.
+- **One dev dependency for the toolchain**: this package. It brings the compiler, the linter, the
+  formatter, the test runner, the browser driver, the mutation engine and the coverage-floor binary
+  with it. Because npm does not install a dependency's dev dependencies, the toolchain is declared
+  under `dependencies` here — that is not a mistake, it is what makes one install enough.
   The one tool it cannot bring is the security scanner: `semgrep` is a Python tool, installed
   outside npm and explicitly in CI.
+
+  **A repository declares what is its own, and never a second copy of the toolchain.** A library
+  its tests import, a tool of its own such as a playground, and Node's types where it runs
+  TypeScript in Node are its business — rak200/ui declares `axe-core`, Storybook and `@types/node`
+  for exactly those. Node's types are not brought from here on purpose: they would put Node's
+  globals into every browser library's type check. What a repository may not do is declare a
+  package this one brings, because the declaration resolves on its own and the verbs run that
+  copy: `prettier` declared at this package's own range ran 3.9.9 in rak200/ui where this
+  package's had run 3.9.8, with `lint` green. The step _A repository may not weaken a mandated
+  value_ refuses one by name, in `dependencies`, `devDependencies` and `optionalDependencies`, from
+  `js.yml` 2.19.0.
 
 ## The verbs, bound
 
