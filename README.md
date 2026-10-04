@@ -25,10 +25,10 @@ resolves as a Composer VCS package. The registry is for artifacts outside consum
 `rak200/ui` — not for the configuration that builds them.
 
 It brings the compiler, linter, formatter, test runner, browser driver, mutation engine and the
-coverage-floor binary with it, so a repository's `devDependencies` cannot drift from its siblings'.
-Those tools are declared under `dependencies` rather than `devDependencies`, deliberately: npm does
-not install a dependency's dev dependencies, so declaring them there would ship a standard that
-enforces nothing.
+coverage-floor binary with it. Those tools are declared under `dependencies` rather than
+`devDependencies`, deliberately: npm does not install a dependency's dev dependencies, so declaring
+them there would ship a standard that enforces nothing. A repository declares what is its own —
+and, since `js.yml` 2.19.0, the pipeline refuses one that declares a second copy of these.
 
 ## Use
 
