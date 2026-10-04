@@ -29,6 +29,11 @@ formatter.
 Type-aware rules need a program. `parserOptions.projectService` builds one from the consumer's own
 `tsconfig.json`, so this file never names one.
 
+**A repository may add rules, never weaken these.** From `js.yml` 2.16.0 the pipeline resolves the
+config of every tracked script twice — the repository's, and this file's on its own — and fails
+where a rule this file turns on resolves to a different severity or options. Rules a repository
+adds, and files it ignores, stay its own.
+
 [↑ Back to top](#eslint)
 
 ---
