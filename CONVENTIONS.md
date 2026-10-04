@@ -22,6 +22,20 @@ Import both from a project's `CLAUDE.md`:
   linter moves, and raising it is a major (Layer 1, _Versioning_).
 - **ESM only** — `"type": "module"`, `verbatimModuleSyntax`, `NodeNext` resolution. No dual
   builds: a package that ships both formats ships two behaviours and debugs three.
+
+  **The two compiler options are what hold the rule, so they are what the pipeline compares.**
+  Under `NodeNext` a relative import without its extension is a compile error, and under
+  `verbatimModuleSyntax` so is a package without `"type": "module"` — which is why `"type"`
+  needs no check of its own. Either one, overridden in a repository's tsconfig, lets its failure
+  ship on a green pipeline: an import without its extension passes every verb, any bundler
+  resolves it, and `dist/` then fails to load in Node. The step _A repository may not weaken a
+  mandated value_ resolves every `tsconfig*.json` at the root through `tsc --showConfig` and
+  compares `module`, `moduleResolution` and `verbatimModuleSyntax` with this package's
+  `tsconfig.base.json`, on the floor leg of every repository calling `js.yml` 2.14.0 or later.
+
+  **No dual builds is checked by nothing.** A second format is a deliberate change to the
+  manifest and a second build, which a reviewer sees, not a line that slips in.
+
 - **One dev dependency**: this package. It brings the compiler, the linter, the formatter, the
   test runner, the browser driver, the mutation engine and the coverage-floor binary with it, so a
   repository's `devDependencies` does not drift from its siblings'. Because npm does not install a

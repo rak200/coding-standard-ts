@@ -16,6 +16,7 @@ The compiler settings. The one config in this package shared as JSON, because `t
 ## Contents
 
 - [What it sets](#what-it-sets)
+- [What a repository may not override](#what-a-repository-may-not-override)
 - [What it leaves to you](#what-it-leaves-to-you)
 
 ---
@@ -34,6 +35,18 @@ The compiler settings. The one config in this package shared as JSON, because `t
 `skipLibCheck`.
 
 **Output** — `declaration`, `declarationMap`, `sourceMap`.
+
+[↑ Back to top](#tsconfig)
+
+---
+
+## What a repository may not override
+
+`module`, `moduleResolution` and `verbatimModuleSyntax` are what make the compiler hold ESM only:
+under `NodeNext` a relative import without its extension is a compile error, and under
+`verbatimModuleSyntax` so is a package without `"type": "module"`. From `js.yml` 2.14.0 the
+pipeline resolves every `tsconfig*.json` at the repository's root through `tsc --showConfig`, and
+fails when any of the three differs from this file. It compares those three and nothing else here.
 
 [↑ Back to top](#tsconfig)
 
