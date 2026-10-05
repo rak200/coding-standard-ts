@@ -12,7 +12,9 @@
  * **`bail` stops a browser run once per process, and only once.** `runFiles()` clears every
  * cancel listener at the start of a run, and the browser pool registers its own once, when it is
  * created. From the second run on, a failure asks for a cancellation nobody hears, and the pool
- * runs every file it was given. Measured on Vitest 4.1.11, which is the last 4.
+ * runs every file it was given. Measured on Vitest 4.1.11, which is the last 4. What the first
+ * run registered after sorting is registered again on every later run, less whatever Vitest took
+ * back: a browser session takes its own back when its connection closes.
  *
  * Measured on rak200/ui, over the same 34 mutants and two workers:
  *
@@ -20,7 +22,7 @@
  * | --- | --- | --- |
  * | Vitest's own | 19 min 52 s | 1,000 |
  * | the mirror first, `bail` unheard | 21 min 22 s | 967 |
- * | the mirror first, `bail` heard | 5 min 58 s | 80 |
+ * | the mirror first, `bail` heard | 2 min 47 s | 77 |
  *
  * Every mutant got the same verdict in all three runs. `bail` cuts a run short only after a
  * failure, so an order can change which test kills a mutant, never whether one does.
@@ -75,7 +77,10 @@ export class MirrorFirstSequencer extends BaseSequencer {
     /** How many a run registers before it sorts, which every run registers again. */
     #before = 0;
 
-    /** What the first run registered after it sorted — the browser pool's own among them. */
+    /**
+     * What the first run registered after it sorted and has not taken back — the browser pool's
+     * own among them.
+     */
     #heard = /** @type {CancelListener[]} */ ([]);
 
     #sorts = 0;
@@ -91,8 +96,17 @@ export class MirrorFirstSequencer extends BaseSequencer {
         const onCancel = ctx.onCancel.bind(ctx);
         ctx.onCancel = (listener) => {
             this.#since.push(listener);
+            const off = onCancel(listener);
 
-            return onCancel(listener);
+            // Taken back, never registered again. A browser session takes its own back when its
+            // connection closes, and registered again it calls the closed connection on the next
+            // cancellation: an unhandled rejection that ends the process — measured, as 17
+            // restarted workers over 34 mutants on rak200/ui.
+            return () => {
+                this.#since = this.#since.filter((kept) => kept !== listener);
+                this.#heard = this.#heard.filter((kept) => kept !== listener);
+                off();
+            };
         };
     }
 
@@ -104,7 +118,7 @@ export class MirrorFirstSequencer extends BaseSequencer {
      * A run starts by clearing every listener and registers its own before it sorts, so what
      * the first run registered after sorting is what the second finds missing: the listeners
      * since the first sort, less as many as a run registers before sorting, which by then are
-     * the second run's own.
+     * the second run's own — and less any Vitest has taken back.
      *
      * @override
      * @param {TestSpecification[]} files the files the run was given

@@ -221,6 +221,37 @@ describe('MirrorFirstSequencer', () => {
             expect([...instance.listeners]).toEqual([second]);
         });
 
+        it('forgets what Vitest takes back, as a browser session does when it closes', async () => {
+            const instance = vitest({ related: [`${root}/src/a.ts`], results });
+            const sequencer = new MirrorFirstSequencer(instance.ctx);
+            const pool = listener();
+            const session = listener();
+
+            await run(instance, sequencer, [pool]);
+            instance.ctx.onCancel(session)();
+            const second = await run(instance, sequencer);
+
+            expect([...instance.listeners]).toEqual([second, pool]);
+        });
+
+        it('forgets it whenever it is taken back, after the first run too', async () => {
+            const instance = vitest({ related: [`${root}/src/a.ts`], results });
+            const sequencer = new MirrorFirstSequencer(instance.ctx);
+            const pool = listener();
+
+            await run(instance, sequencer, [pool]);
+            const session = listener();
+            const close = instance.ctx.onCancel(session);
+            const second = await run(instance, sequencer);
+
+            expect([...instance.listeners], 'still open').toEqual([second, pool, session]);
+
+            close();
+            const third = await run(instance, sequencer);
+
+            expect([...instance.listeners], 'closed').toEqual([third, pool]);
+        });
+
         it('still hands back what removes a listener', () => {
             const instance = vitest();
             new MirrorFirstSequencer(instance.ctx);
