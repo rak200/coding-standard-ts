@@ -75,7 +75,10 @@ export class MirrorFirstSequencer extends BaseSequencer {
     /** How many a run registers before it sorts, which every run registers again. */
     #before = 0;
 
-    /** What the first run registered after it sorted — the browser pool's own among them. */
+    /**
+     * What the first run registered after it sorted and has not taken back — the browser pool's
+     * own among them.
+     */
     #heard = /** @type {CancelListener[]} */ ([]);
 
     #sorts = 0;
@@ -91,8 +94,17 @@ export class MirrorFirstSequencer extends BaseSequencer {
         const onCancel = ctx.onCancel.bind(ctx);
         ctx.onCancel = (listener) => {
             this.#since.push(listener);
+            const off = onCancel(listener);
 
-            return onCancel(listener);
+            // Taken back, never registered again. A browser session takes its own back when its
+            // connection closes, and registered again it calls the closed connection on the next
+            // cancellation: an unhandled rejection that ends the process — measured, as 17
+            // restarted workers over 34 mutants on rak200/ui.
+            return () => {
+                this.#since = this.#since.filter((kept) => kept !== listener);
+                this.#heard = this.#heard.filter((kept) => kept !== listener);
+                off();
+            };
         };
     }
 
@@ -104,7 +116,7 @@ export class MirrorFirstSequencer extends BaseSequencer {
      * A run starts by clearing every listener and registers its own before it sorts, so what
      * the first run registered after sorting is what the second finds missing: the listeners
      * since the first sort, less as many as a run registers before sorting, which by then are
-     * the second run's own.
+     * the second run's own — and less any Vitest has taken back.
      *
      * @override
      * @param {TestSpecification[]} files the files the run was given
