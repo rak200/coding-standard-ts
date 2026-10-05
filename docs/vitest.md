@@ -49,8 +49,11 @@ mirrors `src/`, so this needs no configuration.
 listener when a run starts, and its browser pool registers its own once, when the pool is created.
 From the second run in a process, a failure asks for a cancellation nobody hears, and the pool runs
 every file it was given. The sequencer is built before the pool and sorts after the clearing, so it
-registers again what the first run registered after sorting. The node pool registers its own on
-every run, so a suite outside a browser never needed this, and the sequencer leaves it as it is.
+registers again what the first run registered after sorting and never took back — the pool's own. A
+browser session takes its listener back when its connection closes, and registered again it would
+call the closed connection: an unhandled rejection that ends the worker. The node pool registers its
+own on every run, so a suite outside a browser never needed this, and the sequencer leaves it as it
+is.
 
 Measured on rak200/ui, over the same 34 mutants and two workers:
 
@@ -58,7 +61,7 @@ Measured on rak200/ui, over the same 34 mutants and two workers:
 | -------------------------------- | ----------- | -------------- |
 | Vitest's own                     | 19 min 52 s | 1,000          |
 | the mirror first, `bail` unheard | 21 min 22 s | 967            |
-| the mirror first, `bail` heard   | 6 min 5 s   | 84             |
+| the mirror first, `bail` heard   | 2 min 47 s  | 77             |
 
 Every mutant got the same verdict in all three. `bail` cuts a run short only after a failure, so
 the order can change which test kills a mutant, never whether one does. A run with no scope —

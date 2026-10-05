@@ -12,7 +12,9 @@
  * **`bail` stops a browser run once per process, and only once.** `runFiles()` clears every
  * cancel listener at the start of a run, and the browser pool registers its own once, when it is
  * created. From the second run on, a failure asks for a cancellation nobody hears, and the pool
- * runs every file it was given. Measured on Vitest 4.1.11, which is the last 4.
+ * runs every file it was given. Measured on Vitest 4.1.11, which is the last 4. What the first
+ * run registered after sorting is registered again on every later run, less whatever Vitest took
+ * back: a browser session takes its own back when its connection closes.
  *
  * Measured on rak200/ui, over the same 34 mutants and two workers:
  *
@@ -20,7 +22,7 @@
  * | --- | --- | --- |
  * | Vitest's own | 19 min 52 s | 1,000 |
  * | the mirror first, `bail` unheard | 21 min 22 s | 967 |
- * | the mirror first, `bail` heard | 5 min 58 s | 80 |
+ * | the mirror first, `bail` heard | 2 min 47 s | 77 |
  *
  * Every mutant got the same verdict in all three runs. `bail` cuts a run short only after a
  * failure, so an order can change which test kills a mutant, never whether one does.
