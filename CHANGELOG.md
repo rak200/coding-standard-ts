@@ -1,5 +1,12 @@
 # Changelog
 
+## [0.5.3](https://github.com/rak200/coding-standard-ts/compare/0.5.2...0.5.3) (2026-10-05)
+
+
+### Bug Fixes
+
+* **deps:** bump the runtime group with 4 updates ([#133](https://github.com/rak200/coding-standard-ts/issues/133)) ([c5c1c35](https://github.com/rak200/coding-standard-ts/commit/c5c1c35669474ac34c046868c5323e899109ca47))
+
 ## [0.5.2](https://github.com/rak200/coding-standard-ts/compare/0.5.1...0.5.2) (2026-10-04)
 
 
