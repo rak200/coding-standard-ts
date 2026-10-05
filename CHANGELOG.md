@@ -1,5 +1,12 @@
 # Changelog
 
+## [0.5.4](https://github.com/rak200/coding-standard-ts/compare/0.5.3...0.5.4) (2026-10-05)
+
+
+### Bug Fixes
+
+* the sequencer forgets the cancel listeners Vitest takes back ([3c15f5e](https://github.com/rak200/coding-standard-ts/commit/3c15f5e9c9d2156aa0b003d5dfd2bd4b1a06db29))
+
 ## [0.5.3](https://github.com/rak200/coding-standard-ts/compare/0.5.2...0.5.3) (2026-10-05)
 
 
