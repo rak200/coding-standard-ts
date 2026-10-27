@@ -162,9 +162,6 @@ function isPublic(member) {
 // vitest runner records a file that never collected as no test run rather than as a kill.
 // Stryker disable next-line ObjectLiteral: outside the vitest runner's reach, as described above
 export default {
-    // ESLint reads `meta.defaultOptions`, never this one; the type asks for it.
-    // Stryker disable next-line ArrayDeclaration: nothing reads it, so no mutant shows
-    defaultOptions: [],
     meta: {
         // ESLint reads `type` only to filter fixes, and this rule has none.
         // Stryker disable next-line StringLiteral: nothing reads it, so no mutant shows
